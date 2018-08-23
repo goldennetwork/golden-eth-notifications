@@ -12,9 +12,15 @@ type Transaction struct {
 	GasPrice         string `json:"gasPrice" bson:"gas_price"`
 	Hash             string `json:"hash" bson:"hash"`
 	Input            string `json:"input" bson:"input"`
-	Nonce            string `json:"nonce" bson:"nonce"`
 	TransactionIndex string `json:"transactionIndex" bson:"tx_index"`
-	V                string `json:"v" bson:"v"`
-	R                string `json:"r" bson:"r"`
-	S                string `json:"s" bson:"s"`
+	TimeStamp        string `json:"timeStamp" bson:"time_stamp"`
+	ContractAddress  string `json:"contractAddress" bson:"contract_address"`
+	TokenName        string `json:"tokenName" bson:"token_name"`
+	TokenSymbol      string `json:"tokenSymbol" bson:"token_symbol"`
+	TokenDecimal     string `json:"tokenDecimal" bson:"token_decimal"`
+	// Nonce            string `json:"nonce" bson:"nonce"`
+	// GasUsed          string `json:"gasUsed" bson:"gas_used"`
+	// V                string `json:"v" bson:"v"`
+	// R                string `json:"r" bson:"r"`
+	// S                string `json:"s" bson:"s"`
 }
