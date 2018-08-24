@@ -55,8 +55,8 @@ func ConvertInputValueWithDecimal(valStr string, decimals int8) (string, error) 
 		}
 		suf += valBigIntString
 	} else {
-		pre = valBigIntString[:len(valBigIntString)-decimalsInt] + "."
-		suf = strings.TrimRight(valBigIntString[len(valBigIntString)-decimalsInt:], "0")
+		pre = valBigIntString[:lenVal-decimalsInt] + "."
+		suf = strings.TrimRight(valBigIntString[lenVal-decimalsInt:], "0")
 	}
 	return pre + suf, nil
 }
