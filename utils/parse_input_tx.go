@@ -43,7 +43,20 @@ func ConvertInputValueWithDecimal(valStr string, decimals int8) (string, error) 
 		return valBigIntString, nil
 	}
 
-	pre := valBigIntString[:len(valBigIntString)-int(decimals)]
-	suf := strings.TrimRight(valBigIntString[len(valBigIntString)-int(decimals):], "0")
-	return pre + "." + suf, nil
+	decimalsInt := int(decimals)
+	lenVal := len(valBigIntString)
+	pre := ""
+	suf := ""
+
+	if lenVal < decimalsInt {
+		pre = "0."
+		for i := 0; i < decimalsInt-lenVal-1; i++ {
+			suf = suf + "0"
+		}
+		suf += valBigIntString
+	} else {
+		pre = valBigIntString[:len(valBigIntString)-decimalsInt] + "."
+		suf = strings.TrimRight(valBigIntString[len(valBigIntString)-decimalsInt:], "0")
+	}
+	return pre + suf, nil
 }
