@@ -36,6 +36,9 @@ func ConvertInputValueWithDecimal(valStr string, decimals int8) (string, error) 
 	}
 
 	valBigIntString := valBigInt.String()
+	if valBigIntString == "0" {
+		return valBigIntString, nil
+	}
 	if decimals == 0 {
 		return valBigIntString, nil
 	}
