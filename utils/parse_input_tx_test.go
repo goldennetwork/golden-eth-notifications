@@ -64,6 +64,10 @@ func TestConvertInputValueWithDecimal(t *testing.T) {
 		wantErr bool
 	}{
 		{"Test case 1", args{"2b364320ad5f60000", 18}, "49.82", false},
+		{"Test case 2", args{"0", 18}, "0", false},
+		{"Test case 3", args{"0xfff", 2}, "40.95", false},
+		{"Test case 4", args{"BCF", 5}, "0.3023", false},
+		{"Test case 5", args{"B43132B3", 0}, "3023123123", false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
