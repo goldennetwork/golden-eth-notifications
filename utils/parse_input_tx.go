@@ -15,7 +15,7 @@ import (
 )
 
 func ParseInputTx(input string, decimals int8) *types.InputData {
-	if len(input) == 2 {
+	if len(input) != 138 {
 		return nil
 	}
 	methodID := input[0:10]
