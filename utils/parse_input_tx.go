@@ -36,6 +36,10 @@ func ConvertInputValueWithDecimal(valStr string, decimals int8) (string, error) 
 	}
 
 	valBigIntString := valBigInt.String()
+	if decimals == 0 {
+		return valBigIntString, nil
+	}
+
 	pre := valBigIntString[:len(valBigIntString)-int(decimals)]
 	suf := strings.TrimRight(valBigIntString[len(valBigIntString)-int(decimals):], "0")
 	return pre + "." + suf, nil
