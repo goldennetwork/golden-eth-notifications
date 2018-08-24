@@ -1,8 +1,10 @@
 package utils
 
 import (
+	"math/big"
 	"reflect"
 	"testing"
+	"time"
 
 	"github.com/goldennetwork/golden-eth-notifications/types"
 )
@@ -71,13 +73,72 @@ func TestConvertInputValueWithDecimal(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
+			start := time.Now()
 			got, err := ConvertInputValueWithDecimal(tt.args.val, tt.args.decimals)
+			t.Log(time.Now().Sub(start))
 			if (err != nil) != tt.wantErr {
 				t.Errorf("ConvertInputValueWithDecimal() error = %v, wantErr %v", err, tt.wantErr)
 				return
 			}
 			if got != tt.want {
 				t.Errorf("ConvertInputValueWithDecimal() = %v, want %v", got, tt.want)
+			}
+			t.Log(got)
+		})
+	}
+}
+
+func TestCoinToNumberInString(t *testing.T) {
+	bigIntTest0 := big.NewInt(19831202373)
+	bigIntTest1, _ := new(big.Int).SetString("198312023182371823973", 10)
+	bigIntTest2, _ := new(big.Int).SetString("49820000000000000000", 10)
+	BigIntTest := []*big.Int{
+		bigIntTest0,
+		bigIntTest1,
+		bigIntTest2,
+	}
+	type args struct {
+		value            *big.Int
+		decimal          int
+		number_precision int
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{"Test case 0",
+			args{
+				value:            BigIntTest[0],
+				decimal:          8,
+				number_precision: 5,
+			},
+			"198.31",
+		},
+		{"Test case 1",
+			args{
+				value:            BigIntTest[1],
+				decimal:          18,
+				number_precision: 5,
+			},
+			"198.31",
+		},
+		{"Test case 2",
+			args{
+				value:            BigIntTest[2],
+				decimal:          18,
+				number_precision: 4,
+			},
+			"49.82",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			start := time.Now()
+			got := CoinToNumberInString(tt.args.value, tt.args.decimal, tt.args.number_precision)
+			t.Log(time.Now().Sub(start))
+			if got != tt.want {
+				t.Errorf("CoinToNumberInString() = %v, want %v", got, tt.want)
 			}
 			t.Log(got)
 		})
