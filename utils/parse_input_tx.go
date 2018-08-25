@@ -42,8 +42,11 @@ func ConvertHexStringToBigInt(str string) (*big.Int, error) {
 
 func ConvertInputValueWithDecimal(valStr string, decimals int8) string {
 	trimStr := strings.Trim(valStr, "0")
-	if trimStr == "" || trimStr == "." || decimals == 0 {
+	if trimStr == "" || decimals == 0 {
 		return valStr
+	}
+	if trimStr == "." {
+		return "0"
 	}
 
 	decimalsInt := int(decimals)
