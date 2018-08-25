@@ -2,13 +2,10 @@ package utils
 
 import (
 	"fmt"
-	"log"
 	"math"
 	"math/big"
 	"strconv"
 	"strings"
-
-	"time"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/goldennetwork/golden-eth-notifications/types"
@@ -23,55 +20,52 @@ func ParseInputTx(input string, decimals int8) *types.InputData {
 		return nil
 	}
 	toAddress := strings.TrimLeft(input[10:74], "0")
-	value := strings.TrimLeft(input[75:], "0")
-	valDcms, _ := ConvertInputValueWithDecimal(value, decimals)
+	valueRaw := strings.TrimLeft(input[75:], "0")
+	valBigInt, _ := ConvertHexStringToBigInt(valueRaw)
+	valDcms := ConvertInputValueWithDecimal(valBigInt.String(), decimals)
 
 	return &types.InputData{
 		MethodID:          methodID,
 		ToAddress:         toAddress,
-		Value:             value,
+		Value:             valueRaw,
 		ValueWithDecimals: valDcms,
 	}
 }
 
-func ConvertInputValueWithDecimal(valStr string, decimals int8) (string, error) {
-	if !strings.HasPrefix(valStr, "0x") {
-		valStr = "0x" + valStr
+func ConvertHexStringToBigInt(str string) (*big.Int, error) {
+	if !strings.HasPrefix(str, "0x") {
+		str = "0x" + str
 	}
-	valBigInt, err := hexutil.DecodeBig(valStr)
-	if err != nil {
-		log.Println(err)
-		return "", err
-	}
+	bigInt, err := hexutil.DecodeBig(str)
+	return bigInt, err
+}
 
-	start := time.Now()
-	valBigIntString := valBigInt.String()
-	if valBigIntString == "0" {
-		log.Println(time.Now().Sub(start))
-		return valBigIntString, nil
-	}
-	if decimals == 0 {
-		log.Println(time.Now().Sub(start))
-		return valBigIntString, nil
+func ConvertInputValueWithDecimal(valStr string, decimals int8) string {
+	trimStr := strings.Trim(valStr, "0")
+	if trimStr == "" || trimStr == "." || decimals == 0 {
+		return valStr
 	}
 
 	decimalsInt := int(decimals)
-	lenVal := len(valBigIntString)
-	pre := ""
-	suf := ""
+	lenVal := len(valStr)
+	arrStr := strings.Split(valStr, "")
 
 	if lenVal < decimalsInt {
-		pre = "0."
-		for i := 0; i < decimalsInt-lenVal-1; i++ {
-			suf = suf + "0"
-		}
-		suf += valBigIntString
-	} else {
-		pre = valBigIntString[:lenVal-decimalsInt] + "."
-		suf = strings.TrimRight(valBigIntString[lenVal-decimalsInt:], "0")
+		numberOfZero := decimalsInt - lenVal - 1
+		return "0." + strings.Repeat("0", numberOfZero) + strings.TrimRight(valStr, "0")
 	}
-	log.Println(time.Now().Sub(start))
-	return pre + suf, nil
+
+	if lenVal > decimalsInt {
+		index := lenVal - decimalsInt
+		pre := strings.Join(arrStr[:index], "")
+		suf := strings.Join(arrStr[index:], "")
+		if strings.Trim(suf, "0") == "" {
+			return pre
+		}
+		return pre + "." + strings.TrimRight(suf, "0")
+	}
+
+	return "0." + strings.TrimRight(valStr, "0")
 }
 
 /**
