@@ -54,39 +54,6 @@ func TestParseInputTx(t *testing.T) {
 		})
 	}
 }
-func TestConvertInputValueWithDecimal(t *testing.T) {
-	type args struct {
-		val      string
-		decimals int8
-	}
-	tests := []struct {
-		name    string
-		args    args
-		want    string
-		wantErr bool
-	}{
-		{"Test case 1", args{"2b364320ad5f60000", 18}, "49.82", false},
-		{"Test case 2", args{"0", 18}, "0", false},
-		{"Test case 3", args{"0xfff", 2}, "40.95", false},
-		{"Test case 4", args{"BCF", 5}, "0.3023", false},
-		{"Test case 5", args{"B43132B3", 0}, "3023123123", false},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			start := time.Now()
-			got, err := ConvertInputValueWithDecimal(tt.args.val, tt.args.decimals)
-			t.Log(time.Now().Sub(start))
-			if (err != nil) != tt.wantErr {
-				t.Errorf("ConvertInputValueWithDecimal() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if got != tt.want {
-				t.Errorf("ConvertInputValueWithDecimal() = %v, want %v", got, tt.want)
-			}
-			t.Log(got)
-		})
-	}
-}
 
 func TestCoinToNumberInString(t *testing.T) {
 	bigIntTest0 := big.NewInt(19831202373)
@@ -141,6 +108,33 @@ func TestCoinToNumberInString(t *testing.T) {
 				t.Errorf("CoinToNumberInString() = %v, want %v", got, tt.want)
 			}
 			t.Log(got)
+		})
+	}
+}
+
+func TestConvertInputValueWithDecimal(t *testing.T) {
+	type args struct {
+		valStr   string
+		decimals int8
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{"Test case 1", args{"19999378490000000000000", 18}, "19999.37849"},
+		{"Test case 2", args{"0.000", 3}, "0"},
+		{"Test case 3", args{"0", 5}, "0"},
+		{"Test case 4", args{"8000", 8}, "0.0008"},
+		{"Test case 5", args{"9000", 4}, "0.9"},
+		{"Test case 6", args{"91237123", 0}, "91237123"},
+		{"Test case 7", args{"72000", 3}, "72"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := ConvertInputValueWithDecimal(tt.args.valStr, tt.args.decimals); got != tt.want {
+				t.Errorf("ConvertInputValueWithDecimal() = %v, want %v", got, tt.want)
+			}
 		})
 	}
 }
