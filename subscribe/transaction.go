@@ -15,8 +15,7 @@ type PendingTxSub struct {
 	timeRetry    time.Duration
 }
 
-func NewPendingTransactionSubscribe(url string, timeRetry time.Duration) *PendingTxSub {
-	client := newRpcClient(url)
+func NewPendingTransactionSubscribe(client *rpc.Client, url string, timeRetry time.Duration) *PendingTxSub {
 	pendingTxSub := make(chan string)
 	newBlockSub := make(chan interface{})
 	return &PendingTxSub{
@@ -27,20 +26,12 @@ func NewPendingTransactionSubscribe(url string, timeRetry time.Duration) *Pendin
 	}
 }
 
-func newRpcClient(url string) *rpc.Client {
-	client, err := rpc.Dial(url)
-	if err != nil {
-		log.Fatalln("Cannot connect to full node > Error: ", err)
-	}
-	return client
-}
-
-func StartSubscribe(url string) {
-	pendingTxSub := NewPendingTransactionSubscribe(url, 2*time.Second)
+func StartSubscribe(client *rpc.Client, url string) {
+	pendingTxSub := NewPendingTransactionSubscribe(client, url, 2*time.Second)
 	pendingTxSub.startSubscribe()
 
 	time.Sleep(pendingTxSub.timeRetry)
-	StartSubscribe(url)
+	StartSubscribe(client, url)
 }
 
 func (t PendingTxSub) startSubscribe() {
