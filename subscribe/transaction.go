@@ -2,56 +2,70 @@ package tracking
 
 import (
 	"context"
-	"log"
 	"time"
 
 	"github.com/ethereum/go-ethereum/rpc"
 )
 
-type PendingTxSub struct {
-	client       *rpc.Client
+type EthereumSubscribe struct {
 	pendingTxSub chan string
 	newBlockSub  chan interface{}
 	timeRetry    time.Duration
 }
 
-func NewPendingTransactionSubscribe(client *rpc.Client, url string, timeRetry time.Duration) *PendingTxSub {
+func NewEthereumSubscribe(url string, timeRetry time.Duration) *EthereumSubscribe {
 	pendingTxSub := make(chan string)
 	newBlockSub := make(chan interface{})
-	return &PendingTxSub{
-		client:       client,
+	return &EthereumSubscribe{
 		pendingTxSub: pendingTxSub,
 		newBlockSub:  newBlockSub,
 		timeRetry:    timeRetry,
 	}
 }
 
-func StartSubscribe(client *rpc.Client, url string) {
-	pendingTxSub := NewPendingTransactionSubscribe(client, url, 2*time.Second)
-	pendingTxSub.startSubscribe()
+func (es *EthereumSubscribe) StartEtherSub(client *rpc.Client) {
+	ctxPar := context.Background()
+	ctx, cancelFunc := context.WithCancel(ctxPar)
 
-	time.Sleep(pendingTxSub.timeRetry)
-	StartSubscribe(client, url)
-}
+	subTx, errSubTx := client.EthSubscribe(ctx, es.pendingTxSub, "newPendingTransactions")
+	subBlock, errSubBlock := client.EthSubscribe(ctx, es.newBlockSub, "newHeads")
 
-func (t PendingTxSub) startSubscribe() {
-	client := t.client
-	pendingTxSub := t.pendingTxSub
+	unsubsribe := func() {
+		if subBlock != nil {
+			subBlock.Unsubscribe()
+		}
 
-	sub, err := client.EthSubscribe(context.Background(), pendingTxSub, "newPendingTransactions")
-	if err != nil {
-		log.Println(err)
+		if subTx != nil {
+			subTx.Unsubscribe()
+		}
+	}
+
+	defer func() {
+		cancelFunc()
+		unsubsribe()
+		time.Sleep(es.timeRetry)
+		// go es.StartEtherSub()
+	}()
+
+	if errSubTx != nil {
+		return
+	}
+
+	if errSubBlock != nil {
+		unsubsribe()
+		return
 	}
 
 	for {
 		select {
-		case txHash := <-pendingTxSub:
-			log.Println(txHash)
+		case txHash := <-es.pendingTxSub:
 
-		case err := <-sub.Err():
-			log.Println(err.Error())
-			sub.Unsubscribe()
-			close(pendingTxSub)
+		case <-es.newBlockSub:
+			// block
+
+		case <-subTx.Err():
+		case <-subBlock.Err():
+		case <-ctx.Done():
 			break
 		}
 	}
