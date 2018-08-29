@@ -55,17 +55,27 @@ func isERCTransaction(tran *Transaction) bool {
 func (hdl txHashHandler) pushPendingTransaction(tran *Transaction) {
 
 	deviceTokensFrom := hdl.engine.DataSource.FindDeviceTokens(tran.From)
-	deviceTokensTo := hdl.engine.DataSource.FindDeviceTokens(tran.To)
 
-	tokens := append(deviceTokensFrom, deviceTokensTo...)
-
-	if len(tokens) > 0 {
+	if len(deviceTokensFrom) > 0 {
 		message := PushMessage{
 			Title:        "Golden",
 			Sound:        "default",
-			Content:      "Rinkeby: You have a new pending transaction: " + tran.Hash,
+			Content:      "You sent " + tran.Value + " to " + tran.To + " (pending)",
 			Badge:        "1",
-			DeviceTokens: tokens,
+			DeviceTokens: deviceTokensFrom,
+		}
+		sendMessage(hdl.engine.pushKey, &message)
+	}
+
+	deviceTokensTo := hdl.engine.DataSource.FindDeviceTokens(tran.To)
+
+	if len(deviceTokensTo) > 0 {
+		message := PushMessage{
+			Title:        "Golden",
+			Sound:        "default",
+			Content:      "You received " + tran.Value + " from " + tran.From + " (pending)",
+			Badge:        "1",
+			DeviceTokens: deviceTokensTo,
 		}
 		sendMessage(hdl.engine.pushKey, &message)
 	}
