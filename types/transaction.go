@@ -24,3 +24,12 @@ type Transaction struct {
 	// R                string `json:"r" bson:"r"`
 	// S                string `json:"s" bson:"s"`
 }
+
+func (t *Transaction) IsNormalTx() bool {
+	switch {
+	case t.Value == "0x0":
+		return false
+	default:
+		return true
+	}
+}
