@@ -9,6 +9,7 @@ import (
 type Engine struct {
 	c          *rpc.Client
 	pushKey    string
+	pushTitle  string
 	DataSource EngineDataSource
 }
 
@@ -19,8 +20,9 @@ func NewEngine(config EngineConfig) Engine {
 	}
 
 	return Engine{
-		c:       client,
-		pushKey: config.FCM_PUSH_KEY,
+		c:         client,
+		pushKey:   config.FCM_PUSH_KEY,
+		pushTitle: config.FCM_PUSH_TITLE,
 		DataSource: DefaultDataSouce{
 			Data: make(map[string][]string),
 			lock: &sync.RWMutex{},

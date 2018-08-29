@@ -1,8 +1,9 @@
 package ethNotification
 
 type EngineConfig struct {
-	WSURL        string
-	FCM_PUSH_KEY string
+	WSURL          string
+	FCM_PUSH_KEY   string
+	FCM_PUSH_TITLE string
 }
 
 type TokenContract struct {

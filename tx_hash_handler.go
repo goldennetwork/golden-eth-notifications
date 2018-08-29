@@ -58,7 +58,7 @@ func (hdl txHashHandler) pushPendingTransaction(tran *Transaction) {
 
 	if len(deviceTokensFrom) > 0 {
 		message := PushMessage{
-			Title:        "Golden",
+			Title:        hdl.engine.pushTitle,
 			Sound:        "default",
 			Content:      "You sent " + tran.Value + " to " + tran.To + " (pending)",
 			Badge:        "1",
@@ -71,7 +71,7 @@ func (hdl txHashHandler) pushPendingTransaction(tran *Transaction) {
 
 	if len(deviceTokensTo) > 0 {
 		message := PushMessage{
-			Title:        "Golden",
+			Title:        hdl.engine.pushTitle,
 			Sound:        "default",
 			Content:      "You received " + tran.Value + " from " + tran.From + " (pending)",
 			Badge:        "1",
