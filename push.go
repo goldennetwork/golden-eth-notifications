@@ -14,7 +14,7 @@ func fcmClient(key string) *fcm.FcmClient {
 	return gcm
 }
 
-func SendMessage(pushKey string, message *PushMessage) error {
+func sendMessage(pushKey string, message *PushMessage) error {
 	notif := fcm.NotificationPayload{
 		Title: message.Title,
 		Icon:  "ic_launcher",
