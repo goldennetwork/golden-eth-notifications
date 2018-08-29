@@ -7,7 +7,7 @@ type PushMessage struct {
 	Badge        string                 `json:"badge" bson:"badge"`
 	DeviceTokens []string               `json:"device_tokens" bson:"device_tokens"`
 	Payload      map[string]interface{} `json:"payload" bson:"payload"`
-	Reponses     []PushResult           `json:"results,omitempty" bson:"results,omitempty"`
+	Responses    []PushResult           `json:"results,omitempty" bson:"results,omitempty"`
 }
 
 type PushResult struct {

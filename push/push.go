@@ -36,7 +36,7 @@ func SendMessage(message *types.PushMessage) error {
 		}
 		responses = append(responses, pushRS)
 	}
-	message.Reponses = responses
+	message.Responses = responses
 
 	gcm.NewFcmRegIdsMsg(message.DeviceTokens, message.Payload)
 	gcm.SetNotificationPayload(&notif)
@@ -49,7 +49,7 @@ func SendMessage(message *types.PushMessage) error {
 	}
 
 	for i, _ := range status.Results {
-		message.Reponses[i].Result = status.Results[i]
+		message.Responses[i].Result = status.Results[i]
 	}
 	return nil
 }
