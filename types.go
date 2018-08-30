@@ -81,3 +81,9 @@ type WalletPush struct {
 	DeviceUDID  string `json:"device_udid" bson:"_id"`
 	DeviceToken string `json:"device_token" bson:"device_token"`
 }
+
+type WalletSubscriber struct {
+	WalletName    string
+	WalletAddress string
+	DeviceToken   string
+}

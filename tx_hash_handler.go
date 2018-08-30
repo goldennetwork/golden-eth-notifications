@@ -2,6 +2,7 @@ package ethNotification
 
 import (
 	"context"
+	"fmt"
 	"log"
 )
 
@@ -54,28 +55,15 @@ func isERCTransaction(tran *Transaction) bool {
 
 func (hdl txHashHandler) pushPendingTransaction(tran *Transaction) {
 
-	deviceTokensFrom := hdl.engine.DataSource.FindDeviceTokens(tran.From)
+	walletSubscribers := hdl.engine.DataSource.FindWalletSubscribers(tran.From, tran.To)
 
-	if len(deviceTokensFrom) > 0 {
+	for _, ws := range walletSubscribers {
 		message := PushMessage{
 			Title:        hdl.engine.pushTitle,
 			Sound:        "default",
-			Content:      "You sent " + tran.Value + " to " + tran.To + " (pending)",
+			Content:      fmt.Sprintf("Wallet (%s) has new transaction with value: %s ", ws.WalletName, tran.Value),
 			Badge:        "1",
-			DeviceTokens: deviceTokensFrom,
-		}
-		sendMessage(hdl.engine.pushKey, &message)
-	}
-
-	deviceTokensTo := hdl.engine.DataSource.FindDeviceTokens(tran.To)
-
-	if len(deviceTokensTo) > 0 {
-		message := PushMessage{
-			Title:        hdl.engine.pushTitle,
-			Sound:        "default",
-			Content:      "You received " + tran.Value + " from " + tran.From + " (pending)",
-			Badge:        "1",
-			DeviceTokens: deviceTokensTo,
+			DeviceTokens: []string{ws.DeviceToken},
 		}
 		sendMessage(hdl.engine.pushKey, &message)
 	}
