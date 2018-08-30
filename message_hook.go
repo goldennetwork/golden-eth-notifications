@@ -21,12 +21,13 @@ func afterSend(tran *Transaction, ws WalletSubscriber, pm PushMessage) {
 func messagePayload(tran *Transaction, ws WalletSubscriber) map[string]interface{} {
 	return map[string]interface{}{}
 }
+
 func messageTitle(tran *Transaction, ws WalletSubscriber) string {
 	bigInt, _ := new(big.Int).SetString(tran.Value, 10)
 	value := CoinToNumberInString(bigInt, 18, 5)
-	content := "Wallet %s received %s ETH (%s)."
+	content := "Wallet %s received %s ETH. Status: %s."
 	if tran.From == ws.WalletAddress {
-		content = "Wallet %s sent %s ETH (%s)."
+		content = "Wallet %s sent %s ETH. Status: %s."
 	}
 
 	return fmt.Sprintf(content, ws.WalletName, value, tran.Status.String())
