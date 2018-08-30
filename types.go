@@ -62,7 +62,7 @@ type Transaction struct {
 	ContractAddress   string   `json:"contractAddress" bson:"contract_address"`
 	TokenName         string   `json:"tokenName" bson:"token_name"`
 	TokenSymbol       string   `json:"tokenSymbol" bson:"token_symbol"`
-	TokenDecimal      string   `json:"tokenDecimal" bson:"token_decimal"`
+	TokenDecimal      int      `json:"tokenDecimal" bson:"token_decimal"`
 	Status            TxStatus `json:"-" bson:"status"`
 	StatusReceipt     string   `json:"status"`
 	IsSeft            bool     `json:"isSeft"`

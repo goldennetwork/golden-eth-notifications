@@ -3,6 +3,7 @@ package ethNotification
 import (
 	"context"
 	"log"
+	"strings"
 )
 
 type txHashHandler struct {
@@ -24,7 +25,7 @@ func (hdl txHashHandler) Handle() error {
 		return err
 	}
 
-	if isETHTransaction(transaction) {
+	if allowPush(transaction) {
 		hdl.pushPendingTransaction(transaction)
 	}
 	return nil
@@ -45,6 +46,10 @@ func (hdl txHashHandler) fetchTxInfo() (*Transaction, error) {
 	result.IsSeft = result.From == result.To
 	result.ChainName = hdl.engine.ChainName
 
+	if isERCTransaction(result) {
+		hdl.fillTokenInfo(result)
+	}
+
 	if result.Value != "0x0" {
 		bigInt, _ := ConvertHexStringToBigInt(result.Value)
 		result.Value = bigInt.String()
@@ -55,12 +60,29 @@ func (hdl txHashHandler) fetchTxInfo() (*Transaction, error) {
 	return result, nil
 }
 
+func (hdl txHashHandler) fillTokenInfo(tran *Transaction) {
+	tokens := hdl.engine.TokenDataSource.FindTokens([]string{tran.To})
+	if len(tokens) > 0 {
+		token := tokens[0]
+		inputData := ParseInputTx(tran.Input, token.Decimals)
+		tran.To = inputData.ToAddress
+		tran.Value = inputData.Value
+		tran.ContractAddress = token.ContractAddress
+		tran.TokenDecimal = int(token.Decimals)
+		tran.TokenSymbol = token.Symbol
+	}
+}
+
 func isETHTransaction(tran *Transaction) bool {
 	return tran.Input == "0x"
 }
 
 func isERCTransaction(tran *Transaction) bool {
-	return false // To do
+	return strings.Contains(tran.Input, MethodIDTransferERC20Token.String())
+}
+
+func allowPush(tran *Transaction) bool {
+	return isETHTransaction(tran) || isERCTransaction(tran)
 }
 
 func (hdl txHashHandler) pushPendingTransaction(tran *Transaction) {
@@ -69,7 +91,6 @@ func (hdl txHashHandler) pushPendingTransaction(tran *Transaction) {
 
 	if len(walletSubscribers) > 0 {
 		hdl.engine.CacheData.Set(tran.Hash, walletSubscribers, *tran)
-		log.Println("Cache - ", hdl.engine.CacheData)
 
 		go func() {
 			for _, ws := range walletSubscribers {

@@ -8,13 +8,14 @@ import (
 )
 
 type Engine struct {
-	c           *rpc.Client
-	pushKey     string
-	pushTitle   string
-	DataSource  EngineDataSource
-	CacheData   EngineCache
-	MessageHook MessageHook
-	ChainName   string
+	c               *rpc.Client
+	pushKey         string
+	pushTitle       string
+	DataSource      EngineDataSource
+	TokenDataSource EngineTokenDataSource
+	CacheData       EngineCache
+	MessageHook     MessageHook
+	ChainName       string
 }
 
 func NewEngine(config EngineConfig) Engine {
@@ -35,6 +36,7 @@ func NewEngine(config EngineConfig) Engine {
 			Data: make(map[string][]WalletSubscriber),
 			lock: &sync.RWMutex{},
 		},
+		TokenDataSource: newDefaultTokenDataSource(),
 		CacheData: &DefaultEngineCache{
 			Data: make(map[string]CacheData),
 			l:    &sync.RWMutex{},
@@ -52,6 +54,14 @@ func (e *Engine) Start() {
 
 func (e *Engine) SetDataSource(ds EngineDataSource) {
 	e.DataSource = ds
+}
+
+func (e *Engine) SetEngineCache(ec EngineCache) {
+	e.CacheData = ec
+}
+
+func (e *Engine) SetTokenDataSource(etds EngineTokenDataSource) {
+	e.TokenDataSource = etds
 }
 
 func (e *Engine) SubscribeWallet(walletName, address, deviceToken string) {

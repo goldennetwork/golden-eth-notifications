@@ -24,10 +24,21 @@ func messagePayload(tran *Transaction, ws WalletSubscriber) map[string]interface
 
 func messageTitle(tran *Transaction, ws WalletSubscriber) string {
 	bigInt, _ := new(big.Int).SetString(tran.Value, 10)
-	value := CoinToNumberInString(bigInt, 18, 5)
-	content := fmt.Sprintf("Wallet %s received %s ETH. Status: %s.", ws.WalletName, value, tran.Status.String())
+	value := ""
+	symbol := "ETH"
+
+	// Format value base on ETH or Token
+	if tran.TokenDecimal != 0 {
+		value = CoinToNumberInString(bigInt, tran.TokenDecimal, 5)
+		// Change symbol if token
+		symbol = tran.TokenSymbol
+	} else {
+		value = CoinToNumberInString(bigInt, 18, 5)
+	}
+
+	content := fmt.Sprintf("Wallet %s received %s %s. Status: %s.", ws.WalletName, value, symbol, tran.Status.String())
 	if tran.From == ws.WalletAddress {
-		content = fmt.Sprintf("Wallet %s sent %s ETH. Status: %s.", ws.WalletName, value, tran.Status.String())
+		content = fmt.Sprintf("Wallet %s sent %s %s. Status: %s.", ws.WalletName, value, symbol, tran.Status.String())
 	}
 
 	if tran.ChainName != "mainnet" {
