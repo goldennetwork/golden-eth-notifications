@@ -42,6 +42,14 @@ func (hdl txHashHandler) fetchTxInfo() (*Transaction, error) {
 	}
 
 	result.Status = Pending
+
+	if result.Value != "0x0" {
+		bigInt, _ := ConvertHexStringToBigInt(result.Value)
+		result.Value = bigInt.String()
+	} else {
+		result.Value = "0"
+	}
+
 	return result, nil
 }
 
