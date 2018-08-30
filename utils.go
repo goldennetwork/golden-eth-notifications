@@ -1,4 +1,4 @@
-package utils
+package ethNotification
 
 import (
 	"fmt"
@@ -8,15 +8,14 @@ import (
 	"strings"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
-	"github.com/goldennetwork/golden-eth-notifications/types"
 )
 
-func ParseInputTx(input string, decimals int8) *types.InputData {
+func ParseInputTx(input string, decimals int8) *InputData {
 	if len(input) != 138 {
 		return nil
 	}
 	methodID := input[0:10]
-	if methodID != types.MethodIDTransferERC20Token {
+	if methodID != MethodIDTransferERC20Token.String() {
 		return nil
 	}
 	toAddress := strings.TrimLeft(input[10:74], "0")
@@ -24,7 +23,7 @@ func ParseInputTx(input string, decimals int8) *types.InputData {
 	valBigInt, _ := ConvertHexStringToBigInt(valueRaw)
 	valDcms := ConvertInputValueWithDecimal(valBigInt.String(), decimals)
 
-	return &types.InputData{
+	return &InputData{
 		MethodID:          methodID,
 		ToAddress:         toAddress,
 		Value:             valueRaw,
