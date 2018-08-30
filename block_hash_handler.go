@@ -77,7 +77,7 @@ func (hdl blockHashHandler) pushTrackingTransaction(txs []string) {
 					DeviceTokens: []string{ws.DeviceToken},
 					Payload:      hdl.engine.MessageHook.MessagePayload(txInfoReceipt, ws),
 				}
-				hdl.engine.MessageHook.BeforeSend(txInfoReceipt, ws)
+				hdl.engine.MessageHook.BeforeSend(txInfoReceipt, ws, message)
 				sendMessage(hdl.engine.pushKey, &message)
 				hdl.engine.MessageHook.AfterSend(txInfoReceipt, ws, message)
 			}

@@ -81,7 +81,7 @@ func (hdl txHashHandler) pushPendingTransaction(tran *Transaction) {
 					DeviceTokens: []string{ws.DeviceToken},
 					Payload:      hdl.engine.MessageHook.MessagePayload(tran, ws),
 				}
-				hdl.engine.MessageHook.BeforeSend(tran, ws)
+				hdl.engine.MessageHook.BeforeSend(tran, ws, message)
 				sendMessage(hdl.engine.pushKey, &message)
 				hdl.engine.MessageHook.AfterSend(tran, ws, message)
 			}
