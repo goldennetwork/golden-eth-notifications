@@ -40,6 +40,8 @@ func (hdl txHashHandler) fetchTxInfo() (*Transaction, error) {
 	if result == nil {
 		return nil, ErrTransactionNotFound
 	}
+
+	result.Status = Pending
 	return result, nil
 }
 
