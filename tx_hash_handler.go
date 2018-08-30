@@ -20,7 +20,7 @@ func NewTxHashHandler(e *Engine, hash string) txHashHandler {
 func (hdl txHashHandler) Handle() error {
 	transaction, err := hdl.fetchTxInfo()
 	if err != nil {
-		log.Println("Transaction error: ", err.Error())
+		log.Println("Transaction error: ", err.Error(), " txHash: ", hdl.hash)
 		return err
 	}
 
@@ -67,17 +67,24 @@ func (hdl txHashHandler) pushPendingTransaction(tran *Transaction) {
 
 	walletSubscribers := hdl.engine.DataSource.FindWalletSubscribers(tran.From, tran.To)
 
-	for _, ws := range walletSubscribers {
-		message := PushMessage{
-			Title:        hdl.engine.pushTitle,
-			Sound:        "default",
-			Content:      hdl.engine.MessageHook.MessageTitle(tran, ws),
-			Badge:        "1",
-			DeviceTokens: []string{ws.DeviceToken},
-			Payload:      hdl.engine.MessageHook.MessagePayload(tran, ws),
-		}
-		hdl.engine.MessageHook.BeforeSend(tran, ws)
-		sendMessage(hdl.engine.pushKey, &message)
-		hdl.engine.MessageHook.AfterSend(tran, ws, message)
+	if len(walletSubscribers) > 0 {
+		hdl.engine.CacheData.Set(tran.Hash, walletSubscribers, *tran)
+		log.Println("Cache - ", hdl.engine.CacheData)
+
+		go func() {
+			for _, ws := range walletSubscribers {
+				message := PushMessage{
+					Title:        hdl.engine.pushTitle,
+					Sound:        "default",
+					Content:      hdl.engine.MessageHook.MessageTitle(tran, ws),
+					Badge:        "1",
+					DeviceTokens: []string{ws.DeviceToken},
+					Payload:      hdl.engine.MessageHook.MessagePayload(tran, ws),
+				}
+				hdl.engine.MessageHook.BeforeSend(tran, ws)
+				sendMessage(hdl.engine.pushKey, &message)
+				hdl.engine.MessageHook.AfterSend(tran, ws, message)
+			}
+		}()
 	}
 }

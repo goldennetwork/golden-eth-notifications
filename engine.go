@@ -12,6 +12,7 @@ type Engine struct {
 	pushKey     string
 	pushTitle   string
 	DataSource  EngineDataSource
+	CacheData   EngineCache
 	MessageHook MessageHook
 	ChainName   string
 }
@@ -33,6 +34,10 @@ func NewEngine(config EngineConfig) Engine {
 		DataSource: &DefaultDataSouce{
 			Data: make(map[string][]WalletSubscriber),
 			lock: &sync.RWMutex{},
+		},
+		CacheData: &DefaultEngineCache{
+			Data: make(map[string]CacheData),
+			l:    &sync.RWMutex{},
 		},
 		MessageHook: newMessageHook(),
 		ChainName:   config.CHAIN_NAME,
@@ -58,7 +63,7 @@ func (e *Engine) UnsubscribeWallet(address string) {
 }
 
 // Hook
-func (e *Engine) OnBeforeSendMessage(hdl func(*Transaction, WalletSubscriber)) {
+func (e *Engine) OnBeforeSendMessage(hdl func(*Transaction, WalletSubscriber, PushMessage)) {
 	e.MessageHook.BeforeSend = hdl
 }
 

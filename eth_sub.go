@@ -8,14 +8,14 @@ import (
 type ethSub struct {
 	engine       *Engine
 	pendingTxSub chan string
-	newBlockSub  chan interface{}
+	newBlockSub  chan Block
 }
 
 func newETHSub(engine *Engine) ethSub {
 	return ethSub{
 		engine:       engine,
 		pendingTxSub: make(chan string),
-		newBlockSub:  make(chan interface{}),
+		newBlockSub:  make(chan Block),
 	}
 }
 
@@ -52,13 +52,15 @@ func (es *ethSub) StartEtherSub() {
 		select {
 		case txHash := <-es.pendingTxSub:
 			go func() {
-				log.Println(txHash)
+				// log.Println("Transaction - " + txHash)
 				NewTxHashHandler(es.engine, txHash).Handle()
 			}()
 
-		case <-es.newBlockSub:
-			// block
-
+		case blockHeader := <-es.newBlockSub:
+			go func() {
+				log.Println("Block - " + blockHeader.Hash)
+				NewBlockHashHandler(es.engine, blockHeader.Hash).Handle()
+			}()
 		case <-subTx.Err():
 		case <-subBlock.Err():
 		case <-ctx.Done():
