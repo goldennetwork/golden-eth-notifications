@@ -8,10 +8,11 @@ import (
 )
 
 type Engine struct {
-	c          *rpc.Client
-	pushKey    string
-	pushTitle  string
-	DataSource EngineDataSource
+	c           *rpc.Client
+	pushKey     string
+	pushTitle   string
+	DataSource  EngineDataSource
+	MessageHook MessageHook
 }
 
 func NewEngine(config EngineConfig) Engine {
@@ -28,6 +29,7 @@ func NewEngine(config EngineConfig) Engine {
 			Data: make(map[string][]WalletSubscriber),
 			lock: &sync.RWMutex{},
 		},
+		MessageHook: newMessageHook(),
 	}
 }
 
@@ -47,4 +49,21 @@ func (e *Engine) SubscribeWallet(walletName, address, deviceToken string) {
 
 func (e *Engine) UnsubscribeWallet(address string) {
 	go e.DataSource.UnsubscribeWalletAllDevice(address)
+}
+
+// Hook
+func (e *Engine) OnBeforeSendMessage(hdl func(*Transaction, WalletSubscriber)) {
+	e.MessageHook.BeforeSend = hdl
+}
+
+func (e *Engine) OnAfterSendMessage(hdl func(*Transaction, WalletSubscriber, PushMessage)) {
+	e.MessageHook.AfterSend = hdl
+}
+
+func (e *Engine) SetMessageTitle(hdl func(*Transaction, WalletSubscriber) string) {
+	e.MessageHook.MessageTitle = hdl
+}
+
+func (e *Engine) SetMessagePayload(hdl func(*Transaction, WalletSubscriber) map[string]interface{}) {
+	e.MessageHook.MessagePayload = hdl
 }

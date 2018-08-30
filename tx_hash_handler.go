@@ -2,7 +2,6 @@ package ethNotification
 
 import (
 	"context"
-	"fmt"
 	"log"
 )
 
@@ -60,10 +59,13 @@ func (hdl txHashHandler) pushPendingTransaction(tran *Transaction) {
 		message := PushMessage{
 			Title:        hdl.engine.pushTitle,
 			Sound:        "default",
-			Content:      fmt.Sprintf("Wallet (%s) has new transaction with value: %s ", ws.WalletName, tran.Value),
+			Content:      hdl.engine.MessageHook.MessageTitle(tran, ws),
 			Badge:        "1",
 			DeviceTokens: []string{ws.DeviceToken},
+			Payload:      hdl.engine.MessageHook.MessagePayload(tran, ws),
 		}
+		hdl.engine.MessageHook.BeforeSend(tran, ws)
 		sendMessage(hdl.engine.pushKey, &message)
+		hdl.engine.MessageHook.AfterSend(tran, ws, message)
 	}
 }

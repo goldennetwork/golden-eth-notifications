@@ -40,7 +40,7 @@ func (es *ethSub) StartEtherSub() {
 	defer func() {
 		cancelFunc()
 		unsubsribe()
-		log.Println("Stop engine !")
+		log.Println("STOP ENGINE!")
 		// go es.StartEtherSub()
 	}()
 
