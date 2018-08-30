@@ -6,13 +6,13 @@ import (
 )
 
 type MessageHook struct {
-	BeforeSend     func(*Transaction, WalletSubscriber)
+	BeforeSend     func(*Transaction, WalletSubscriber, PushMessage)
 	MessageTitle   func(*Transaction, WalletSubscriber) string
 	MessagePayload func(*Transaction, WalletSubscriber) map[string]interface{}
 	AfterSend      func(*Transaction, WalletSubscriber, PushMessage)
 }
 
-func beforeSend(tran *Transaction, ws WalletSubscriber) {
+func beforeSend(tran *Transaction, ws WalletSubscriber, pm PushMessage) {
 }
 
 func afterSend(tran *Transaction, ws WalletSubscriber, pm PushMessage) {
