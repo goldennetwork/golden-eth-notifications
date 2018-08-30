@@ -13,12 +13,17 @@ type Engine struct {
 	pushTitle   string
 	DataSource  EngineDataSource
 	MessageHook MessageHook
+	ChainName   string
 }
 
 func NewEngine(config EngineConfig) Engine {
 	client, err := rpc.Dial(config.WSURL)
 	if err != nil {
 		panic("Can not connect to " + config.WSURL)
+	}
+
+	if config.CHAIN_NAME == "" {
+		config.CHAIN_NAME = "mainnet"
 	}
 
 	return Engine{
@@ -30,6 +35,7 @@ func NewEngine(config EngineConfig) Engine {
 			lock: &sync.RWMutex{},
 		},
 		MessageHook: newMessageHook(),
+		ChainName:   config.CHAIN_NAME,
 	}
 }
 

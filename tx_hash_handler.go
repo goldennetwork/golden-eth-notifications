@@ -42,6 +42,8 @@ func (hdl txHashHandler) fetchTxInfo() (*Transaction, error) {
 	}
 
 	result.Status = Pending
+	result.IsSeft = result.From == result.To
+	result.ChainName = hdl.engine.ChainName
 
 	if result.Value != "0x0" {
 		bigInt, _ := ConvertHexStringToBigInt(result.Value)

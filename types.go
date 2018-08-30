@@ -4,6 +4,7 @@ type EngineConfig struct {
 	WSURL          string
 	FCM_PUSH_KEY   string
 	FCM_PUSH_TITLE string
+	CHAIN_NAME     string
 }
 
 type TokenContract struct {
@@ -54,6 +55,8 @@ type Transaction struct {
 	TokenSymbol      string   `json:"tokenSymbol" bson:"token_symbol"`
 	TokenDecimal     string   `json:"tokenDecimal" bson:"token_decimal"`
 	Status           TxStatus `json:"status" bson:"status"`
+	IsSeft           bool     `json:"isSeft"`
+	ChainName        string   `json:"chainName"`
 	// Nonce            string `json:"nonce" bson:"nonce"`
 	// GasUsed          string `json:"gasUsed" bson:"gas_used"`
 	// V                string `json:"v" bson:"v"`
