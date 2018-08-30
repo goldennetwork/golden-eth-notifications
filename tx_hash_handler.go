@@ -26,7 +26,6 @@ func (hdl txHashHandler) Handle() error {
 	}
 
 	if isETHTransaction(transaction) {
-		log.Println(transaction)
 		hdl.pushPendingTransaction(transaction)
 	}
 	return nil

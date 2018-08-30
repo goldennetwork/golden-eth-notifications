@@ -12,56 +12,61 @@ type EngineDataSource interface {
 }
 
 type DefaultDataSouce struct {
-	Data []WalletSubscriber
+	Data map[string][]WalletSubscriber
 	lock *sync.RWMutex
 }
 
-func (ds DefaultDataSouce) FindWalletSubscribers(fromAddress, toAddress string) []WalletSubscriber {
+func (ds *DefaultDataSouce) FindWalletSubscribers(fromAddress, toAddress string) []WalletSubscriber {
 	var result []WalletSubscriber
 	ds.lock.Lock()
-	for _, ws := range ds.Data {
-		if ws.WalletAddress == fromAddress || ws.WalletAddress == toAddress {
-			result = append(result, ws)
-		}
+	walletSubFrom, foundFrom := ds.Data[fromAddress]
+	if foundFrom {
+		result = append(result, walletSubFrom...)
+	}
+
+	walletSubTo, foundTo := ds.Data[toAddress]
+	if foundTo {
+		result = append(result, walletSubTo...)
 	}
 	ds.lock.Unlock()
 	return result
 }
 
-func (ds DefaultDataSouce) SubscribeWallet(walletName, walletAddress, deviceToken string) {
+func (ds *DefaultDataSouce) SubscribeWallet(walletName, walletAddress, deviceToken string) {
 	ds.lock.Lock()
+	walletSubs, found := ds.Data[walletAddress]
 	walletSubscriber := WalletSubscriber{
 		WalletName:    walletName,
 		WalletAddress: walletAddress,
 		DeviceToken:   deviceToken,
 	}
-	ds.Data = append(ds.Data, walletSubscriber)
+
+	if found {
+		ds.Data[walletAddress] = append(walletSubs, walletSubscriber)
+	} else {
+		ds.Data[walletAddress] = []WalletSubscriber{walletSubscriber}
+	}
 	ds.lock.Unlock()
 }
 
-func (ds DefaultDataSouce) UnsubscribeWallet(walletAddress, deviceToken string) {
+func (ds *DefaultDataSouce) UnsubscribeWallet(walletAddress, deviceToken string) {
 	ds.lock.Lock()
-
+	walletSubs, found := ds.Data[walletAddress]
 	walletSubscribers := []WalletSubscriber{}
-	for _, ws := range ds.Data {
-		if ws.WalletAddress == walletAddress && ws.DeviceToken == deviceToken {
-			continue
+	if found {
+		for _, ws := range walletSubs {
+			if ws.DeviceToken == deviceToken {
+				continue
+			}
+			walletSubscribers = append(walletSubscribers, ws)
 		}
-		walletSubscribers = append(walletSubscribers, ws)
+		ds.Data[walletAddress] = walletSubscribers
 	}
-	ds.Data = walletSubscribers
 	ds.lock.Unlock()
 }
 
-func (ds DefaultDataSouce) UnsubscribeWalletAllDevice(walletAddress string) {
+func (ds *DefaultDataSouce) UnsubscribeWalletAllDevice(walletAddress string) {
 	ds.lock.Lock()
-	walletSubscribers := []WalletSubscriber{}
-	for _, ws := range ds.Data {
-		if ws.WalletAddress == walletAddress {
-			continue
-		}
-		walletSubscribers = append(walletSubscribers, ws)
-	}
-	ds.Data = walletSubscribers
+	delete(ds.Data, walletAddress)
 	ds.lock.Unlock()
 }

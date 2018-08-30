@@ -1,6 +1,7 @@
 package ethNotification
 
 import (
+	"log"
 	"sync"
 
 	"github.com/ethereum/go-ethereum/rpc"
@@ -23,14 +24,15 @@ func NewEngine(config EngineConfig) Engine {
 		c:         client,
 		pushKey:   config.FCM_PUSH_KEY,
 		pushTitle: config.FCM_PUSH_TITLE,
-		DataSource: DefaultDataSouce{
-			Data: make(map[string][]string),
+		DataSource: &DefaultDataSouce{
+			Data: make(map[string][]WalletSubscriber),
 			lock: &sync.RWMutex{},
 		},
 	}
 }
 
 func (e *Engine) Start() {
+	log.Println("ENGINE START!")
 	ethSub := newETHSub(e)
 	ethSub.StartEtherSub()
 }
@@ -39,8 +41,8 @@ func (e *Engine) SetDataSource(ds EngineDataSource) {
 	e.DataSource = ds
 }
 
-func (e *Engine) SubscribeWallet(address string, deviceToken string) {
-	go e.DataSource.SubscribeWallet(address, deviceToken)
+func (e *Engine) SubscribeWallet(walletName, address, deviceToken string) {
+	go e.DataSource.SubscribeWallet(walletName, address, deviceToken)
 }
 
 func (e *Engine) UnsubscribeWallet(address string) {
