@@ -87,9 +87,10 @@ func allowPush(tran *Transaction) bool {
 
 func (hdl txHashHandler) pushPendingTransaction(tran *Transaction) {
 
-	walletSubscribers := hdl.engine.DataSource.FindWalletSubscribers(tran.From, tran.To)
+	walletSubsResult := hdl.engine.DataSource.FindWalletSubscribers([]Transaction{*tran})
 
-	if len(walletSubscribers) > 0 {
+	if len(walletSubsResult) > 0 {
+		walletSubscribers := walletSubsResult[0].Subscribers
 		hdl.engine.CacheData.Set(tran.Hash, walletSubscribers, *tran)
 
 		go func() {

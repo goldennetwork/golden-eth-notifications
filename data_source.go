@@ -5,7 +5,7 @@ import (
 )
 
 type EngineDataSource interface {
-	FindWalletSubscribers(fromAddress, toAddress string) []WalletSubscriber
+	FindWalletSubscribers(transactions []Transaction) []WalletSubscriberResult
 	SubscribeWallet(walletName, walletAddress, deviceToken string)
 	UnsubscribeWallet(walletAddress, deviceToken string)
 	UnsubscribeWalletAllDevice(walletAddress string)
@@ -16,18 +16,27 @@ type DefaultDataSouce struct {
 	lock *sync.RWMutex
 }
 
-func (ds *DefaultDataSouce) FindWalletSubscribers(fromAddress, toAddress string) []WalletSubscriber {
-	var result []WalletSubscriber
+func (ds *DefaultDataSouce) FindWalletSubscribers(transactions []Transaction) []WalletSubscriberResult {
+	var result []WalletSubscriberResult
 	ds.lock.Lock()
-	walletSubFrom, foundFrom := ds.Data[fromAddress]
-	if foundFrom {
-		result = append(result, walletSubFrom...)
+
+	for i, transaction := range transactions {
+		walletSubsFrom, foundFrom := ds.Data[transaction.From]
+		walletSubsTo, foundTo := ds.Data[transaction.To]
+		wsr := WalletSubscriberResult{
+			Transaction: &transactions[i],
+			Subscribers: []WalletSubscriber{},
+		}
+
+		if foundFrom {
+			wsr.Subscribers = append(wsr.Subscribers, walletSubsFrom...)
+		}
+
+		if foundTo {
+			wsr.Subscribers = append(wsr.Subscribers, walletSubsTo...)
+		}
 	}
 
-	walletSubTo, foundTo := ds.Data[toAddress]
-	if foundTo {
-		result = append(result, walletSubTo...)
-	}
 	ds.lock.Unlock()
 	return result
 }

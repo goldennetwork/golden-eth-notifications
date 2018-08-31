@@ -114,6 +114,11 @@ type WalletSubscriber struct {
 	DeviceToken   string
 }
 
+type WalletSubscriberResult struct {
+	Transaction *Transaction
+	Subscribers []WalletSubscriber
+}
+
 type CacheData struct {
 	Transaction       Transaction
 	WalletSubscribers []WalletSubscriber
