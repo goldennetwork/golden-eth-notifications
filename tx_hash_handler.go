@@ -2,7 +2,6 @@ package ethNotification
 
 import (
 	"context"
-	"log"
 	"strings"
 )
 
@@ -38,8 +37,6 @@ func (hdl txHashHandler) fetchTxInfo() (*Transaction, error) {
 	}
 
 	if result == nil {
-		log.Println("Turned off tracking pending tx")
-		hdl.engine.isAllowPendingTx = false
 		return nil, ErrTransactionNotFound
 	}
 

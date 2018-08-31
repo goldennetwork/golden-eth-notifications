@@ -42,7 +42,7 @@ func NewEngine(config EngineConfig) Engine {
 		cacheData:        newDefaultEngineCache(),
 		messageHook:      newMessageHook(),
 		ChainName:        config.CHAIN_NAME,
-		isAllowPendingTx: true,
+		isAllowPendingTx: config.ENABLE_PUSH_PENDING_TX,
 	}
 }
 
