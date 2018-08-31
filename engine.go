@@ -7,15 +7,16 @@ import (
 )
 
 type Engine struct {
-	c               *rpc.Client
-	ethSub          *ethSub
-	pushKey         string
-	pushTitle       string
-	dataSource      EngineDataSource
-	tokenDataSource EngineTokenDataSource
-	cacheData       EngineCache
-	messageHook     MessageHook
-	ChainName       string
+	c                *rpc.Client
+	ethSub           *ethSub
+	pushKey          string
+	pushTitle        string
+	dataSource       EngineDataSource
+	tokenDataSource  EngineTokenDataSource
+	cacheData        EngineCache
+	messageHook      MessageHook
+	ChainName        string
+	isAllowPendingTx bool
 }
 
 func NewEngine(config EngineConfig) Engine {
@@ -29,14 +30,15 @@ func NewEngine(config EngineConfig) Engine {
 	}
 
 	return Engine{
-		c:               client,
-		pushKey:         config.FCM_PUSH_KEY,
-		pushTitle:       config.FCM_PUSH_TITLE,
-		dataSource:      newDefaultDataSource(),
-		tokenDataSource: newDefaultTokenDataSource(),
-		cacheData:       newDefaultEngineCache(),
-		messageHook:     newMessageHook(),
-		ChainName:       config.CHAIN_NAME,
+		c:                client,
+		pushKey:          config.FCM_PUSH_KEY,
+		pushTitle:        config.FCM_PUSH_TITLE,
+		dataSource:       newDefaultDataSource(),
+		tokenDataSource:  newDefaultTokenDataSource(),
+		cacheData:        newDefaultEngineCache(),
+		messageHook:      newMessageHook(),
+		ChainName:        config.CHAIN_NAME,
+		isAllowPendingTx: true,
 	}
 }
 

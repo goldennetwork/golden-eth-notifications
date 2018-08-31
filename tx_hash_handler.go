@@ -39,6 +39,7 @@ func (hdl txHashHandler) fetchTxInfo() (*Transaction, error) {
 	}
 
 	if result == nil {
+		hdl.engine.isAllowPendingTx = false
 		return nil, ErrTransactionNotFound
 	}
 
