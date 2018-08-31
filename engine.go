@@ -12,10 +12,10 @@ type Engine struct {
 	ethSub          *ethSub
 	pushKey         string
 	pushTitle       string
-	DataSource      EngineDataSource
-	TokenDataSource EngineTokenDataSource
-	CacheData       EngineCache
-	MessageHook     MessageHook
+	dataSource      EngineDataSource
+	tokenDataSource EngineTokenDataSource
+	cacheData       EngineCache
+	messageHook     MessageHook
 	ChainName       string
 }
 
@@ -33,16 +33,16 @@ func NewEngine(config EngineConfig) Engine {
 		c:         client,
 		pushKey:   config.FCM_PUSH_KEY,
 		pushTitle: config.FCM_PUSH_TITLE,
-		DataSource: &DefaultDataSouce{
+		dataSource: &DefaultDataSouce{
 			Data: make(map[string][]WalletSubscriber),
 			lock: &sync.RWMutex{},
 		},
-		TokenDataSource: newDefaultTokenDataSource(),
-		CacheData: &DefaultEngineCache{
+		tokenDataSource: newDefaultTokenDataSource(),
+		cacheData: &DefaultEngineCache{
 			Data: make(map[string]CacheData),
 			l:    &sync.RWMutex{},
 		},
-		MessageHook: newMessageHook(),
+		messageHook: newMessageHook(),
 		ChainName:   config.CHAIN_NAME,
 	}
 }
@@ -61,44 +61,44 @@ func (e *Engine) Stop() {
 }
 
 func (e *Engine) SetDataSource(ds EngineDataSource) {
-	e.DataSource = ds
+	e.dataSource = ds
 }
 
 func (e *Engine) SetEngineCache(ec EngineCache) {
-	e.CacheData = ec
+	e.cacheData = ec
 }
 
 func (e *Engine) SetTokenDataSource(etds EngineTokenDataSource) {
-	e.TokenDataSource = etds
+	e.tokenDataSource = etds
 }
 
 func (e *Engine) SubscribeWallet(walletName, address, deviceToken string) {
-	go e.DataSource.SubscribeWallet(walletName, address, deviceToken)
+	go e.dataSource.SubscribeWallet(walletName, address, deviceToken)
 }
 
 func (e *Engine) UnsubscribeWallet(address string) {
-	go e.DataSource.UnsubscribeWalletAllDevice(address)
+	go e.dataSource.UnsubscribeWalletAllDevice(address)
 }
 
 // Hook
 func (e *Engine) OnBeforeSendMessage(hdl func(*Transaction, WalletSubscriber, PushMessage)) {
-	e.MessageHook.BeforeSend = hdl
+	e.messageHook.BeforeSend = hdl
 }
 
 func (e *Engine) OnAfterSendMessage(hdl func(*Transaction, WalletSubscriber, PushMessage)) {
-	e.MessageHook.AfterSend = hdl
+	e.messageHook.AfterSend = hdl
 }
 
 func (e *Engine) SetMessageTitle(hdl func(*Transaction, WalletSubscriber) string) {
-	e.MessageHook.MessageTitle = hdl
+	e.messageHook.MessageTitle = hdl
 }
 
 func (e *Engine) SetMessagePayload(hdl func(*Transaction, WalletSubscriber) map[string]interface{}) {
-	e.MessageHook.MessagePayload = hdl
+	e.messageHook.MessagePayload = hdl
 }
 
 func (e *Engine) SetAllowSendMessage(hdl func(*Transaction, WalletSubscriber, PushMessage) bool) {
-	e.MessageHook.AllowSend = hdl
+	e.messageHook.AllowSend = hdl
 }
 
 func (e *Engine) pushMessage(tran *Transaction, walletSubs []WalletSubscriber) {
@@ -106,16 +106,16 @@ func (e *Engine) pushMessage(tran *Transaction, walletSubs []WalletSubscriber) {
 		message := PushMessage{
 			Title:        e.pushTitle,
 			Sound:        "default",
-			Content:      e.MessageHook.MessageTitle(tran, ws),
+			Content:      e.messageHook.MessageTitle(tran, ws),
 			Badge:        "1",
 			DeviceTokens: []string{ws.DeviceToken},
-			Payload:      e.MessageHook.MessagePayload(tran, ws),
+			Payload:      e.messageHook.MessagePayload(tran, ws),
 		}
-		e.MessageHook.BeforeSend(tran, ws, message)
+		e.messageHook.BeforeSend(tran, ws, message)
 
-		if e.MessageHook.AllowSend(tran, ws, message) {
+		if e.messageHook.AllowSend(tran, ws, message) {
 			sendMessage(e.pushKey, &message)
-			e.MessageHook.AfterSend(tran, ws, message)
+			e.messageHook.AfterSend(tran, ws, message)
 		}
 	}
 }

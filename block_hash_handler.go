@@ -59,7 +59,7 @@ func (hdl blockHashHandler) fetchTxReceipt(txHash string) (*Transaction, error) 
 
 func (hdl blockHashHandler) pushTrackingTransaction(txs []string) {
 	for _, txHash := range txs {
-		cd, errCd := hdl.engine.CacheData.Get(txHash)
+		cd, errCd := hdl.engine.cacheData.Get(txHash)
 		txInfoReceipt, errTx := hdl.fetchTxReceipt(txHash)
 		if errCd != nil || errTx != nil {
 			continue
@@ -67,6 +67,6 @@ func (hdl blockHashHandler) pushTrackingTransaction(txs []string) {
 		txInfoReceipt.Value = cd.Transaction.Value
 
 		go hdl.engine.pushMessage(txInfoReceipt, cd.WalletSubscribers)
-		hdl.engine.CacheData.Remove(txHash)
+		hdl.engine.cacheData.Remove(txHash)
 	}
 }

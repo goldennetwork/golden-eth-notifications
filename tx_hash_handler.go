@@ -61,7 +61,7 @@ func (hdl txHashHandler) fetchTxInfo() (*Transaction, error) {
 }
 
 func (hdl txHashHandler) fillTokenInfo(tran *Transaction) {
-	tokens := hdl.engine.TokenDataSource.FindTokens([]string{tran.To})
+	tokens := hdl.engine.tokenDataSource.FindTokens([]string{tran.To})
 	if len(tokens) > 0 {
 		token := tokens[0]
 		inputData := ParseInputTx(tran.Input, token.Decimals)
@@ -87,11 +87,11 @@ func allowPush(tran *Transaction) bool {
 
 func (hdl txHashHandler) pushPendingTransaction(tran *Transaction) {
 
-	walletSubsResult := hdl.engine.DataSource.FindWalletSubscribers([]Transaction{*tran})
+	walletSubsResult := hdl.engine.dataSource.FindWalletSubscribers([]Transaction{*tran})
 
 	if len(walletSubsResult) > 0 {
 		walletSubscribers := walletSubsResult[0].Subscribers
-		hdl.engine.CacheData.Set(tran.Hash, walletSubscribers, *tran)
+		hdl.engine.cacheData.Set(tran.Hash, walletSubscribers, *tran)
 		go hdl.engine.pushMessage(tran, walletSubscribers)
 	}
 }
