@@ -6,9 +6,10 @@ import (
 )
 
 type MessageHook struct {
-	BeforeSend     func(*Transaction, WalletSubscriber, PushMessage)
 	MessageTitle   func(*Transaction, WalletSubscriber) string
 	MessagePayload func(*Transaction, WalletSubscriber) map[string]interface{}
+	BeforeSend     func(*Transaction, WalletSubscriber, PushMessage)
+	AllowSend      func(*Transaction, WalletSubscriber, PushMessage) bool
 	AfterSend      func(*Transaction, WalletSubscriber, PushMessage)
 }
 
@@ -47,11 +48,16 @@ func messageTitle(tran *Transaction, ws WalletSubscriber) string {
 	return content
 }
 
+func allow(tran *Transaction, ws WalletSubscriber, pm PushMessage) bool {
+	return true
+}
+
 func newMessageHook() MessageHook {
 	return MessageHook{
 		BeforeSend:     beforeSend,
 		MessageTitle:   messageTitle,
 		MessagePayload: messagePayload,
+		AllowSend:      allow,
 		AfterSend:      afterSend,
 	}
 }

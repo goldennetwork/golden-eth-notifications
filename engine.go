@@ -97,6 +97,10 @@ func (e *Engine) SetMessagePayload(hdl func(*Transaction, WalletSubscriber) map[
 	e.MessageHook.MessagePayload = hdl
 }
 
+func (e *Engine) SetAllowSendMessage(hdl func(*Transaction, WalletSubscriber, PushMessage) bool) {
+	e.MessageHook.AllowSend = hdl
+}
+
 func (e *Engine) pushMessage(tran *Transaction, walletSubs []WalletSubscriber) {
 	for _, ws := range walletSubs {
 		message := PushMessage{
@@ -108,7 +112,10 @@ func (e *Engine) pushMessage(tran *Transaction, walletSubs []WalletSubscriber) {
 			Payload:      e.MessageHook.MessagePayload(tran, ws),
 		}
 		e.MessageHook.BeforeSend(tran, ws, message)
-		sendMessage(e.pushKey, &message)
-		e.MessageHook.AfterSend(tran, ws, message)
+
+		if e.MessageHook.AllowSend(tran, ws, message) {
+			sendMessage(e.pushKey, &message)
+			e.MessageHook.AfterSend(tran, ws, message)
+		}
 	}
 }
