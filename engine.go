@@ -9,6 +9,7 @@ import (
 
 type Engine struct {
 	c               *rpc.Client
+	ethSub          *ethSub
 	pushKey         string
 	pushTitle       string
 	DataSource      EngineDataSource
@@ -49,7 +50,14 @@ func NewEngine(config EngineConfig) Engine {
 func (e *Engine) Start() {
 	log.Println("ENGINE START!")
 	ethSub := newETHSub(e)
-	ethSub.StartEtherSub()
+	e.ethSub = &ethSub
+	e.ethSub.StartEtherSub()
+}
+
+func (e *Engine) Stop() {
+	log.Println("ENGINE STOPPED !")
+	e.ethSub.cancel()
+	e.ethSub = nil
 }
 
 func (e *Engine) SetDataSource(ds EngineDataSource) {
