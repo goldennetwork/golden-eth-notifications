@@ -94,7 +94,7 @@ func generateTxReceiptBatchElements(b *Block) []rpc.BatchElem {
 	result := []rpc.BatchElem{}
 
 	for i, tran := range b.Transactions {
-		var arg interface{} = []string{tran.Hash}
+		var arg interface{} = tran.Hash
 		be := rpc.BatchElem{
 			Method: "",
 			Args:   []interface{}{arg},
