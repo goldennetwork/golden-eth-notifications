@@ -2,7 +2,6 @@ package ethNotification
 
 import (
 	"log"
-	"sync"
 
 	"github.com/ethereum/go-ethereum/rpc"
 )
@@ -30,20 +29,14 @@ func NewEngine(config EngineConfig) Engine {
 	}
 
 	return Engine{
-		c:         client,
-		pushKey:   config.FCM_PUSH_KEY,
-		pushTitle: config.FCM_PUSH_TITLE,
-		dataSource: &DefaultDataSouce{
-			Data: make(map[string][]WalletSubscriber),
-			lock: &sync.RWMutex{},
-		},
+		c:               client,
+		pushKey:         config.FCM_PUSH_KEY,
+		pushTitle:       config.FCM_PUSH_TITLE,
+		dataSource:      newDefaultDataSource(),
 		tokenDataSource: newDefaultTokenDataSource(),
-		cacheData: &DefaultEngineCache{
-			Data: make(map[string]CacheData),
-			l:    &sync.RWMutex{},
-		},
-		messageHook: newMessageHook(),
-		ChainName:   config.CHAIN_NAME,
+		cacheData:       newDefaultEngineCache(),
+		messageHook:     newMessageHook(),
+		ChainName:       config.CHAIN_NAME,
 	}
 }
 

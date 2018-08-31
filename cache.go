@@ -10,12 +10,19 @@ type EngineCache interface {
 	Remove(txHash string)
 }
 
-type DefaultEngineCache struct {
+type defaultEngineCache struct {
 	Data map[string]CacheData
 	l    *sync.RWMutex
 }
 
-func (ec *DefaultEngineCache) Get(txHash string) (CacheData, error) {
+func newDefaultEngineCache() *defaultEngineCache {
+	return &defaultEngineCache{
+		Data: make(map[string]CacheData),
+		l:    &sync.RWMutex{},
+	}
+}
+
+func (ec *defaultEngineCache) Get(txHash string) (CacheData, error) {
 	cd, found := ec.Data[txHash]
 	if !found {
 		return CacheData{}, ErrTransactionNotFound
@@ -24,7 +31,7 @@ func (ec *DefaultEngineCache) Get(txHash string) (CacheData, error) {
 	return cd, nil
 }
 
-func (ec *DefaultEngineCache) Set(txHash string, ws []WalletSubscriber, txInfo Transaction) {
+func (ec *defaultEngineCache) Set(txHash string, ws []WalletSubscriber, txInfo Transaction) {
 	ec.l.Lock()
 	ec.Data[txHash] = CacheData{
 		Transaction:       txInfo,
@@ -33,7 +40,7 @@ func (ec *DefaultEngineCache) Set(txHash string, ws []WalletSubscriber, txInfo T
 	ec.l.Unlock()
 }
 
-func (ec *DefaultEngineCache) Remove(txHash string) {
+func (ec *defaultEngineCache) Remove(txHash string) {
 	ec.l.Lock()
 	delete(ec.Data, txHash)
 	ec.l.Unlock()

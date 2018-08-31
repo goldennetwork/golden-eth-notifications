@@ -11,12 +11,19 @@ type EngineDataSource interface {
 	UnsubscribeWalletAllDevice(walletAddress string)
 }
 
-type DefaultDataSouce struct {
+type defaultDataSource struct {
 	Data map[string][]WalletSubscriber
 	lock *sync.RWMutex
 }
 
-func (ds *DefaultDataSouce) FindWalletSubscribers(transactions []Transaction) []WalletSubscriberResult {
+func newDefaultDataSource() *defaultDataSource {
+	return &defaultDataSource{
+		Data: make(map[string][]WalletSubscriber),
+		lock: &sync.RWMutex{},
+	}
+}
+
+func (ds *defaultDataSource) FindWalletSubscribers(transactions []Transaction) []WalletSubscriberResult {
 	var result []WalletSubscriberResult
 	ds.lock.Lock()
 
@@ -41,7 +48,7 @@ func (ds *DefaultDataSouce) FindWalletSubscribers(transactions []Transaction) []
 	return result
 }
 
-func (ds *DefaultDataSouce) SubscribeWallet(walletName, walletAddress, deviceToken string) {
+func (ds *defaultDataSource) SubscribeWallet(walletName, walletAddress, deviceToken string) {
 	ds.lock.Lock()
 	walletSubs, found := ds.Data[walletAddress]
 	walletSubscriber := WalletSubscriber{
@@ -58,7 +65,7 @@ func (ds *DefaultDataSouce) SubscribeWallet(walletName, walletAddress, deviceTok
 	ds.lock.Unlock()
 }
 
-func (ds *DefaultDataSouce) UnsubscribeWallet(walletAddress, deviceToken string) {
+func (ds *defaultDataSource) UnsubscribeWallet(walletAddress, deviceToken string) {
 	ds.lock.Lock()
 	walletSubs, found := ds.Data[walletAddress]
 	walletSubscribers := []WalletSubscriber{}
@@ -74,7 +81,7 @@ func (ds *DefaultDataSouce) UnsubscribeWallet(walletAddress, deviceToken string)
 	ds.lock.Unlock()
 }
 
-func (ds *DefaultDataSouce) UnsubscribeWalletAllDevice(walletAddress string) {
+func (ds *defaultDataSource) UnsubscribeWalletAllDevice(walletAddress string) {
 	ds.lock.Lock()
 	delete(ds.Data, walletAddress)
 	ds.lock.Unlock()
