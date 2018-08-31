@@ -92,21 +92,6 @@ func (hdl txHashHandler) pushPendingTransaction(tran *Transaction) {
 	if len(walletSubsResult) > 0 {
 		walletSubscribers := walletSubsResult[0].Subscribers
 		hdl.engine.CacheData.Set(tran.Hash, walletSubscribers, *tran)
-
-		go func() {
-			for _, ws := range walletSubscribers {
-				message := PushMessage{
-					Title:        hdl.engine.pushTitle,
-					Sound:        "default",
-					Content:      hdl.engine.MessageHook.MessageTitle(tran, ws),
-					Badge:        "1",
-					DeviceTokens: []string{ws.DeviceToken},
-					Payload:      hdl.engine.MessageHook.MessagePayload(tran, ws),
-				}
-				hdl.engine.MessageHook.BeforeSend(tran, ws, message)
-				sendMessage(hdl.engine.pushKey, &message)
-				hdl.engine.MessageHook.AfterSend(tran, ws, message)
-			}
-		}()
+		go hdl.engine.pushMessage(tran, walletSubscribers)
 	}
 }

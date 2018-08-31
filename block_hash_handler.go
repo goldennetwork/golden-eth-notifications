@@ -64,24 +64,9 @@ func (hdl blockHashHandler) pushTrackingTransaction(txs []string) {
 		if errCd != nil || errTx != nil {
 			continue
 		}
-
 		txInfoReceipt.Value = cd.Transaction.Value
 
-		go func() {
-			for _, ws := range cd.WalletSubscribers {
-				message := PushMessage{
-					Title:        hdl.engine.pushTitle,
-					Sound:        "default",
-					Content:      hdl.engine.MessageHook.MessageTitle(txInfoReceipt, ws),
-					Badge:        "1",
-					DeviceTokens: []string{ws.DeviceToken},
-					Payload:      hdl.engine.MessageHook.MessagePayload(txInfoReceipt, ws),
-				}
-				hdl.engine.MessageHook.BeforeSend(txInfoReceipt, ws, message)
-				sendMessage(hdl.engine.pushKey, &message)
-				hdl.engine.MessageHook.AfterSend(txInfoReceipt, ws, message)
-			}
-		}()
+		go hdl.engine.pushMessage(txInfoReceipt, cd.WalletSubscribers)
 		hdl.engine.CacheData.Remove(txHash)
 	}
 }

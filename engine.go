@@ -88,3 +88,19 @@ func (e *Engine) SetMessageTitle(hdl func(*Transaction, WalletSubscriber) string
 func (e *Engine) SetMessagePayload(hdl func(*Transaction, WalletSubscriber) map[string]interface{}) {
 	e.MessageHook.MessagePayload = hdl
 }
+
+func (e *Engine) pushMessage(tran *Transaction, walletSubs []WalletSubscriber) {
+	for _, ws := range walletSubs {
+		message := PushMessage{
+			Title:        e.pushTitle,
+			Sound:        "default",
+			Content:      e.MessageHook.MessageTitle(tran, ws),
+			Badge:        "1",
+			DeviceTokens: []string{ws.DeviceToken},
+			Payload:      e.MessageHook.MessagePayload(tran, ws),
+		}
+		e.MessageHook.BeforeSend(tran, ws, message)
+		sendMessage(e.pushKey, &message)
+		e.MessageHook.AfterSend(tran, ws, message)
+	}
+}
