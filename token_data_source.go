@@ -4,11 +4,11 @@ type EngineTokenDataSource interface {
 	FindTokens(tokenAddress []string) []TokenContract
 }
 
-type DefaultTokenDataSource struct {
+type defaultTokenDataSource struct {
 	Data map[string]TokenContract
 }
 
-func (ds DefaultTokenDataSource) FindTokens(tokenAddress []string) []TokenContract {
+func (ds defaultTokenDataSource) FindTokens(tokenAddress []string) []TokenContract {
 	result := []TokenContract{}
 
 	for _, addr := range tokenAddress {
@@ -21,8 +21,8 @@ func (ds DefaultTokenDataSource) FindTokens(tokenAddress []string) []TokenContra
 	return result
 }
 
-func newDefaultTokenDataSource() DefaultTokenDataSource {
-	return DefaultTokenDataSource{
+func newDefaultTokenDataSource() defaultTokenDataSource {
+	return defaultTokenDataSource{
 		Data: map[string]TokenContract{
 			"0x86fa049857e0209aa7d9e616f7eb3b3b78ecfdb0": TokenContract{
 				Name:     "EOS",
