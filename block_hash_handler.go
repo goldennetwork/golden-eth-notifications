@@ -3,6 +3,8 @@ package ethNotification
 import (
 	"context"
 	"log"
+
+	"github.com/ethereum/go-ethereum/rpc"
 )
 
 type blockHashHandler struct {
@@ -24,19 +26,36 @@ func (hdl blockHashHandler) Handle() error {
 		return err
 	}
 
-	txs := blockInfo.Transactions
-	hdl.pushTrackingTransaction(txs)
+	if hdl.engine.isAllowPendingTx {
+		hdl.hanlePushWithCache(blockInfo)
+	} else {
+		hdl.hanlePushWithoutCache(blockInfo)
+	}
+
 	return nil
 }
 
 func (hdl blockHashHandler) fetchInfoBlock() (*Block, error) {
 	blockInfo := Block{}
-	err := hdl.engine.c.CallContext(context.Background(), &blockInfo, "eth_getBlockByHash", hdl.hash, false)
+	err := hdl.engine.c.CallContext(context.Background(), &blockInfo, "eth_getBlockByHash", hdl.hash, true)
 	if err != nil {
 		return nil, err
 	}
 
 	return &blockInfo, nil
+}
+
+func (hdl blockHashHandler) fetchTransactionsInBock(b *Block) error {
+	batchElems := generateTxReceiptBatchElements(b)
+	return hdl.engine.c.BatchCallContext(context.Background(), batchElems)
+}
+
+func (hdl blockHashHandler) hanlePushWithCache(b *Block) {
+	hdl.fetchTransactionsInBock(b)
+}
+
+func (hdl blockHashHandler) hanlePushWithoutCache(b *Block) {
+	hdl.fetchTransactionsInBock(b)
 }
 
 func (hdl blockHashHandler) fetchTxReceipt(txHash string) (*Transaction, error) {
@@ -58,15 +77,30 @@ func (hdl blockHashHandler) fetchTxReceipt(txHash string) (*Transaction, error) 
 }
 
 func (hdl blockHashHandler) pushTrackingTransaction(txs []string) {
-	for _, txHash := range txs {
-		cd, errCd := hdl.engine.cacheData.Get(txHash)
-		txInfoReceipt, errTx := hdl.fetchTxReceipt(txHash)
-		if errCd != nil || errTx != nil {
-			continue
-		}
-		txInfoReceipt.Value = cd.Transaction.Value
+	// for _, txHash := range txs {
+	// 	cd, errCd := hdl.engine.cacheData.Get(txHash)
+	// 	txInfoReceipt, errTx := hdl.fetchTxReceipt(txHash)
+	// 	if errCd != nil || errTx != nil {
+	// 		continue
+	// 	}
+	// 	txInfoReceipt.Value = cd.Transaction.Value
 
-		go hdl.engine.pushMessage(txInfoReceipt, cd.WalletSubscribers)
-		hdl.engine.cacheData.Remove(txHash)
+	// 	go hdl.engine.pushMessage(txInfoReceipt, cd.WalletSubscribers)
+	// 	hdl.engine.cacheData.Remove(txHash)
+	// }
+}
+
+func generateTxReceiptBatchElements(b *Block) []rpc.BatchElem {
+	result := []rpc.BatchElem{}
+
+	for i, tran := range b.Transactions {
+		var arg interface{} = []string{tran.Hash}
+		be := rpc.BatchElem{
+			Method: "",
+			Args:   []interface{}{arg},
+			Result: &b.Transactions[i],
+		}
+		result = append(result, be)
 	}
+	return result
 }

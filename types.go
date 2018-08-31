@@ -39,9 +39,9 @@ type PushResult struct {
 }
 
 type Block struct {
-	Hash         string   `json:"hash"`
-	Number       string   `json:"number"`
-	Transactions []string `json:"transactions"`
+	Hash         string        `json:"hash"`
+	Number       string        `json:"number"`
+	Transactions []Transaction `json:"transactions"`
 }
 
 type Transaction struct {

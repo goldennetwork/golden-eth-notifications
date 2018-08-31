@@ -82,3 +82,13 @@ func CoinToNumberInString(value *big.Int, decimal int, number_precision int) str
 	intValue, _ := strconv.Atoi(fmt.Sprintf("%.0f", valFloat*pow))
 	return fmt.Sprintf("%."+fmt.Sprintf("%d", number_precision)+"g", float64(intValue)/pow)
 }
+
+func getTransactionHashesFromBlock(b *Block) []string {
+	result := []string{}
+
+	for _, tran := range b.Transactions {
+		result = append(result, tran.Hash)
+	}
+
+	return result
+}
