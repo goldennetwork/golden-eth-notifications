@@ -2,6 +2,7 @@ package ethNotification
 
 import (
 	"log"
+	"strings"
 
 	"github.com/ethereum/go-ethereum/rpc"
 )
@@ -20,6 +21,9 @@ type Engine struct {
 }
 
 func NewEngine(config EngineConfig) Engine {
+	if strings.TrimSpace(config.WSURL) == "" {
+		panic("WSURL can not be blank")
+	}
 	client, err := rpc.Dial(config.WSURL)
 	if err != nil {
 		panic("Can not connect to " + config.WSURL)
@@ -50,7 +54,7 @@ func (e *Engine) Start() {
 }
 
 func (e *Engine) Stop() {
-	log.Println("ENGINE STOPPED !")
+	log.Println("ENGINE STOPPED!")
 	e.ethSub.cancel()
 	e.ethSub = nil
 }
