@@ -57,13 +57,13 @@ func (es *ethSub) StartEtherSub() {
 				subTx.Unsubscribe()
 			}
 			go func() {
-				log.Println("Transaction - " + txHash)
+				// log.Println("Transaction - " + txHash)
 				NewTxHashHandler(es.engine, txHash).Handle()
 			}()
 
 		case blockHeader := <-es.newBlockSubChan:
 			go func() {
-				log.Println("Block - " + blockHeader.Hash)
+				// log.Println("Block - " + blockHeader.Hash)
 				NewBlockHashHandler(es.engine, blockHeader.Hash).Handle()
 			}()
 		case <-subTx.Err():

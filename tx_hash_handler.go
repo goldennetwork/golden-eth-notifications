@@ -21,7 +21,6 @@ func NewTxHashHandler(e *Engine, hash string) txHashHandler {
 func (hdl txHashHandler) Handle() error {
 	transaction, err := hdl.fetchTxInfo()
 	if err != nil {
-		log.Println("Transaction error: ", err.Error(), " txHash: ", hdl.hash)
 		return err
 	}
 
@@ -39,6 +38,7 @@ func (hdl txHashHandler) fetchTxInfo() (*Transaction, error) {
 	}
 
 	if result == nil {
+		log.Println("Turned off tracking pending tx")
 		hdl.engine.isAllowPendingTx = false
 		return nil, ErrTransactionNotFound
 	}
