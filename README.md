@@ -50,30 +50,30 @@ func main() {
 
 ```golang
     engine.OnBeforeSendMessage(func(tran *ethPush.Transaction, ws ethPush.WalletSubscriber, pushMess ethPush.PushMessage) {
-		// do somthing with your transaction and message
-	})
-	
-	engine.SetMessageTitle(func(tran *ethPush.Transaction, ws ethPush.WalletSubscriber) string {
-		// Custom push message title
-		return fmt.Sprintf("Wallet %s received %s from %s", ws.WalletName, tran.Value, tran.From)
-	})
-	
-	engine.SetMessagePayload(func(tran *ethPush.Transaction, ws ethPush.WalletSubscriber) map[string]interface{} {
-		return map[string]interface{}{
-			"address": ws.WalletAddress,
-			"value":   tran.Value,
-			"wallet":  ws.WalletName,
-			"tx":      tran,
-		}
-	})
-	
-	engine.SetAllowSendMessage(func(tran *ethPush.Transaction, ws ethPush.WalletSubscriber, pushMess ethPush.PushMessage) bool {
-		return true
-	})
-	
-	engine.OnAfterSendMessage(func(tran *ethPush.Transaction, ws ethPush.WalletSubscriber, pushMess ethPush.PushMessage) {
-		// do somthing with your transaction and message
-	})
+	// do somthing with your transaction and message
+    })
+    
+    engine.SetMessageTitle(func(tran *ethPush.Transaction, ws ethPush.WalletSubscriber) string {
+    	// Custom push message title
+	return fmt.Sprintf("Wallet %s received %s from %s", ws.WalletName, tran.Value, tran.From)
+    })
+    
+    engine.SetMessagePayload(func(tran *ethPush.Transaction, ws ethPush.WalletSubscriber) map[string]interface{} {
+    	return map[string]interface{}{
+		"address": ws.WalletAddress,
+		"value":   tran.Value,
+		"wallet":  ws.WalletName,
+		"tx":      tran,
+	}
+    })
+    
+    engine.SetAllowSendMessage(func(tran *ethPush.Transaction, ws ethPush.WalletSubscriber, pushMess ethPush.PushMessage) bool {
+    	return true
+    })
+    
+    engine.OnAfterSendMessage(func(tran *ethPush.Transaction, ws ethPush.WalletSubscriber, pushMess ethPush.PushMessage) {
+    	// do somthing with your transaction and message
+    })
 ```
 
 #### Custom Data Source
@@ -89,8 +89,8 @@ type EngineDataSource interface {
 ```
 
 ```golang
-type CustomDataSource struct {
-}
+	type CustomDataSource struct {
+	}
 
 	func (cds *CustomDataSource) FindWalletSubscribers(transactions []Transaction) []WalletSubscriberResult{
 		// Query your database
