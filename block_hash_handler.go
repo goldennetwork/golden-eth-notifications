@@ -3,6 +3,7 @@ package ethNotification
 import (
 	"context"
 	"log"
+	"time"
 
 	"github.com/ethereum/go-ethereum/rpc"
 )
@@ -36,6 +37,8 @@ func (hdl blockHashHandler) Handle() error {
 }
 
 func (hdl blockHashHandler) fetchInfoBlock() (*Block, error) {
+	time.Sleep(2 * time.Second)
+
 	blockInfo := Block{}
 	err := hdl.engine.c.CallContext(context.Background(), &blockInfo, "eth_getBlockByHash", hdl.hash, true)
 	if err != nil {
@@ -55,7 +58,13 @@ func (hdl blockHashHandler) hanlePushWithCache(b *Block) {
 }
 
 func (hdl blockHashHandler) hanlePushWithoutCache(b *Block) {
-	hdl.fetchTransactionsInBock(b)
+	err := hdl.fetchTransactionsInBock(b)
+	if err != nil {
+		log.Println("Error fetch tx from block: ", err)
+		return
+	} else {
+		log.Println(b)
+	}
 }
 
 func (hdl blockHashHandler) fetchTxReceipt(txHash string) (*Transaction, error) {
@@ -96,7 +105,7 @@ func generateTxReceiptBatchElements(b *Block) []rpc.BatchElem {
 	for i, tran := range b.Transactions {
 		var arg interface{} = tran.Hash
 		be := rpc.BatchElem{
-			Method: "",
+			Method: "eth_getTransactionReceipt",
 			Args:   []interface{}{arg},
 			Result: &b.Transactions[i],
 		}
