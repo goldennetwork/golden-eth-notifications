@@ -58,19 +58,19 @@ func (es *ethSub) StartEtherSub() {
 			if !es.engine.isAllowPendingTx {
 				subTx.Unsubscribe()
 			} else {
-				go func() {
-					log.Println("Transaction - " + txHash)
-					NewTxHashHandler(es.engine, txHash).Handle()
-				}()
+				go func(th string) {
+					log.Println("Transaction - " + th)
+					NewTxHashHandler(es.engine, th).Handle()
+				}(txHash)
 			}
 		case blockHeader := <-es.newBlockSubChan:
 			if es.currentBlockNumber != blockHeader.Number {
 				es.currentBlockNumber = blockHeader.Number
 
-				go func() {
-					log.Println("Block - " + blockHeader.Number)
-					NewBlockHashHandler(es.engine, blockHeader.Hash).Handle()
-				}()
+				go func(bh Block) {
+					log.Println("Block - " + bh.Number)
+					NewBlockHashHandler(es.engine, bh.Hash).Handle()
+				}(blockHeader)
 			}
 		case <-subTx.Err():
 		case blockErr := <-subBlock.Err():
