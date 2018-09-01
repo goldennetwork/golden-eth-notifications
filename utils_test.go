@@ -25,7 +25,7 @@ func TestParseInputTx(t *testing.T) {
 			},
 			&InputData{
 				ToAddress:         "19bbb1c4407dcee04059682949f32cb3b513bf76",
-				Value:             "43c2b2187680e25a000",
+				Value:             "19999378490000000000000",
 				ValueWithDecimals: "19999.37849",
 				MethodID:          "0xa9059cbb",
 			},
@@ -38,8 +38,21 @@ func TestParseInputTx(t *testing.T) {
 			},
 			&InputData{
 				ToAddress:         "f8e2f119e4c9f5bd939cad8ba59dbbf68af10949",
-				Value:             "22d191fac50",
+				Value:             "2392718290000",
 				ValueWithDecimals: "23927.1829",
+				MethodID:          "0xa9059cbb",
+			},
+		},
+		{
+			"Test case 3: Transaction",
+			args{
+				input:    "0xa9059cbb000000000000000000000000af654d6b7254746edb974fe292d36fc8f9da10eb000000000000000000000000000000000000000000000000117c6b5300fe0000",
+				decimals: 18,
+			},
+			&InputData{
+				ToAddress:         "af654d6b7254746edb974fe292d36fc8f9da10eb",
+				Value:             "1260000000000000000",
+				ValueWithDecimals: "1.26",
 				MethodID:          "0xa9059cbb",
 			},
 		},

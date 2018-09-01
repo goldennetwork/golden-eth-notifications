@@ -27,7 +27,7 @@ func ParseInputTx(input string, decimals int8) *InputData {
 	return &InputData{
 		MethodID:          methodID,
 		ToAddress:         toAddress,
-		Value:             valueRaw,
+		Value:             valBigInt.String(),
 		ValueWithDecimals: valDcms,
 	}
 }
