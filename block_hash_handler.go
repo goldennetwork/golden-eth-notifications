@@ -46,17 +46,32 @@ func (hdl blockHashHandler) fetchInfoBlock() (*Block, error) {
 	return &blockInfo, nil
 }
 
-func (hdl blockHashHandler) fetchTransactionsInBock(b *Block) error {
+func (hdl blockHashHandler) fetchTransactionsInBlock(b *Block) error {
 	batchElems := generateTxReceiptBatchElements(b)
 	return hdl.engine.c.BatchCallContext(context.Background(), batchElems)
 }
 
 func (hdl blockHashHandler) hanlePushWithCache(b *Block) {
-	hdl.fetchTransactionsInBock(b)
+	err := hdl.fetchTransactionsInBlock(b)
+	if err != nil {
+		log.Println("Error fetch tx from block: ", err)
+		return
+	}
+	b.Transactions = updateTransactionFromReceipt(hdl.engine.tokenDataSource, b.Transactions)
+
+	for i, tran := range b.Transactions {
+		cd, err := hdl.engine.cacheData.Get(tran.Hash)
+		if err == nil {
+			go func(tx *Transaction) {
+				hdl.engine.pushMessage(tx, cd.WalletSubscribers)
+				hdl.engine.cacheData.Remove(tx.Hash)
+			}(&b.Transactions[i])
+		}
+	}
 }
 
 func (hdl blockHashHandler) hanlePushWithoutCache(b *Block) {
-	err := hdl.fetchTransactionsInBock(b)
+	err := hdl.fetchTransactionsInBlock(b)
 	if err != nil {
 		log.Println("Error fetch tx from block: ", err)
 		return
@@ -65,6 +80,6 @@ func (hdl blockHashHandler) hanlePushWithoutCache(b *Block) {
 	walletSubscribersRes := hdl.engine.dataSource.FindWalletSubscribers(b.Transactions)
 
 	for _, wsr := range walletSubscribersRes {
-		hdl.engine.pushMessage(wsr.Transaction, wsr.Subscribers)
+		go hdl.engine.pushMessage(wsr.Transaction, wsr.Subscribers)
 	}
 }
