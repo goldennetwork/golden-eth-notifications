@@ -50,30 +50,30 @@ func main() {
 
 ```golang
     engine.OnBeforeSendMessage(func(tran *ethPush.Transaction, ws ethPush.WalletSubscriber, pushMess ethPush.PushMessage) {
-		// do somthing with your transaction and message
-	})
-	
-	engine.SetMessageTitle(func(tran *ethPush.Transaction, ws ethPush.WalletSubscriber) string {
-		// Custom push message title
-		return fmt.Sprintf("Wallet %s received %s from %s", ws.WalletName, tran.Value, tran.From)
-	})
-	
-	engine.SetMessagePayload(func(tran *ethPush.Transaction, ws ethPush.WalletSubscriber) map[string]interface{} {
-		return map[string]interface{}{
-			"address": ws.WalletAddress,
-			"value":   tran.Value,
-			"wallet":  ws.WalletName,
-			"tx":      tran,
-		}
-	})
-	
-	engine.SetAllowSendMessage(func(tran *ethPush.Transaction, ws ethPush.WalletSubscriber, pushMess ethPush.PushMessage) bool {
-		return true
-	})
-	
-	engine.OnAfterSendMessage(func(tran *ethPush.Transaction, ws ethPush.WalletSubscriber, pushMess ethPush.PushMessage) {
-		// do somthing with your transaction and message
-	})
+	// do somthing with your transaction and message
+    })
+    
+    engine.SetMessageTitle(func(tran *ethPush.Transaction, ws ethPush.WalletSubscriber) string {
+    	// Custom push message title
+	return fmt.Sprintf("Wallet %s received %s from %s", ws.WalletName, tran.Value, tran.From)
+    })
+    
+    engine.SetMessagePayload(func(tran *ethPush.Transaction, ws ethPush.WalletSubscriber) map[string]interface{} {
+    	return map[string]interface{}{
+		"address": ws.WalletAddress,
+		"value":   tran.Value,
+		"wallet":  ws.WalletName,
+		"tx":      tran,
+	}
+    })
+    
+    engine.SetAllowSendMessage(func(tran *ethPush.Transaction, ws ethPush.WalletSubscriber, pushMess ethPush.PushMessage) bool {
+    	return true
+    })
+    
+    engine.OnAfterSendMessage(func(tran *ethPush.Transaction, ws ethPush.WalletSubscriber, pushMess ethPush.PushMessage) {
+    	// do somthing with your transaction and message
+    })
 ```
 
 #### Custom Data Source
@@ -92,38 +92,41 @@ type EngineDataSource interface {
 type CustomDataSource struct {
 }
 
-	func (cds *CustomDataSource) FindWalletSubscribers(transactions []Transaction) []WalletSubscriberResult{
-		// Query your database
-	}
-	func (cds *CustomDataSource) SubscribeWallet(walletName, walletAddress, deviceToken string) {
-		// Insert into your database
-	}
-	func (cds *CustomDataSource) UnsubscribeWallet(walletAddress, deviceToken string) {
-		// Delete data from your database
-	}
-	func (cds *CustomDataSource) UnsubscribeWalletAllDevice(walletAddress string) {
-		// Delete all wallet subscribers from your database
-	}
+func (cds *CustomDataSource) FindWalletSubscribers(transactions []Transaction) []WalletSubscriberResult{
+	// Query your database
+}
 
-	engine.SetDataSource(CustomDataSource)
+func (cds *CustomDataSource) SubscribeWallet(walletName, walletAddress, deviceToken string) {
+	// Insert into your database
+}
+
+func (cds *CustomDataSource) UnsubscribeWallet(walletAddress, deviceToken string) {
+	// Delete data from your database
+}
+
+func (cds *CustomDataSource) UnsubscribeWalletAllDevice(walletAddress string) {
+	// Delete all wallet subscribers from your database
+}
+
+engine.SetDataSource(CustomDataSource)
 ```
 
 #### Custom Token Data Source
 ```golang
-	type EngineTokenDataSource interface {
-		FindTokens(tokenAddress []string) []TokenContract
-	}
+type EngineTokenDataSource interface {
+	FindTokens(tokenAddress []string) []TokenContract
+}
 ```
 
 ```golang
-	type TokenDataSource struct {
-	}
+type TokenDataSource struct {
+}
 
-	func (ds TokenDataSource) FindTokens(tokenAddress []string) []TokenContract {
-		// Query your database
-	}
+func (ds TokenDataSource) FindTokens(tokenAddress []string) []TokenContract {
+	// Query your database
+}
 
-	engine.SetTokenDataSource(TokenDataSource)
+engine.SetTokenDataSource(TokenDataSource)
 ```
 #### Custom Cache Data Source
 ```golang
@@ -135,19 +138,19 @@ type EngineCache interface {
 ```
 
 ```golang
-	type Cache struct {
-	}
+type Cache struct {
+}
 
-	func (c *Cache) Get(txHash string) (CacheData, error) {
-	}
+func (c *Cache) Get(txHash string) (CacheData, error) {
+}
 	
-	func (c *Cache) Set(txHash string, ws []WalletSubscriber, txInfo Transaction) {
-	}
+func (c *Cache) Set(txHash string, ws []WalletSubscriber, txInfo Transaction) {
+}
 	
-	func (c *Cache) Remove(txHash string) {
-	}
+func (c *Cache) Remove(txHash string) {
+}
 
-	engine.SetEngineCache(Cache)
+engine.SetEngineCache(Cache)
 ```
 
 ## License ##
