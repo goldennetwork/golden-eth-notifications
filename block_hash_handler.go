@@ -19,10 +19,15 @@ func NewBlockHashHandler(e *Engine, hash string) blockHashHandler {
 }
 
 func (hdl blockHashHandler) Handle() error {
+
 	blockInfo, err := hdl.fetchInfoBlock()
 	if err != nil {
 		log.Println("Block error: ", err.Error())
 		return err
+	}
+
+	if blockInfo == nil {
+		return nil
 	}
 
 	if hdl.engine.isAllowPendingTx {
@@ -36,9 +41,8 @@ func (hdl blockHashHandler) Handle() error {
 
 func (hdl blockHashHandler) fetchInfoBlock() (*Block, error) {
 	time.Sleep(2 * time.Second)
-
 	blockInfo := Block{}
-	err := hdl.engine.c.CallContext(context.Background(), &blockInfo, "eth_getBlockByHash", hdl.hash, true)
+	err := hdl.engine.cB.CallContext(context.Background(), &blockInfo, "eth_getBlockByHash", hdl.hash, true)
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +52,7 @@ func (hdl blockHashHandler) fetchInfoBlock() (*Block, error) {
 
 func (hdl blockHashHandler) fetchTransactionsInBlock(b *Block) error {
 	batchElems := generateTxReceiptBatchElements(b)
-	return hdl.engine.c.BatchCallContext(context.Background(), batchElems)
+	return hdl.engine.cB.BatchCallContext(context.Background(), batchElems)
 }
 
 func (hdl blockHashHandler) hanlePushWithCache(b *Block) {

@@ -8,7 +8,8 @@ import (
 )
 
 type Engine struct {
-	c                *rpc.Client
+	cT               *rpc.Client
+	cB               *rpc.Client
 	ethSub           *ethSub
 	pushKey          string
 	pushTitle        string
@@ -24,8 +25,12 @@ func NewEngine(config EngineConfig) Engine {
 	if strings.TrimSpace(config.WSURL) == "" {
 		panic("WSURL can not be blank")
 	}
-	client, err := rpc.Dial(config.WSURL)
-	if err != nil {
+	clientT, errT := rpc.Dial(config.WSURL)
+	if errT != nil {
+		panic("Can not connect to " + config.WSURL)
+	}
+	clientB, errB := rpc.Dial(config.WSURL)
+	if errB != nil {
 		panic("Can not connect to " + config.WSURL)
 	}
 
@@ -34,7 +39,8 @@ func NewEngine(config EngineConfig) Engine {
 	}
 
 	return Engine{
-		c:                client,
+		cT:               clientT,
+		cB:               clientB,
 		pushKey:          config.FCM_PUSH_KEY,
 		pushTitle:        config.FCM_PUSH_TITLE,
 		dataSource:       newDefaultDataSource(),

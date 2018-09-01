@@ -2,7 +2,6 @@ package ethNotification
 
 import (
 	"context"
-	"strings"
 )
 
 type txHashHandler struct {
@@ -32,7 +31,7 @@ func (hdl txHashHandler) Handle() error {
 func (hdl txHashHandler) fetchTxInfo() (*Transaction, error) {
 	var result *Transaction
 
-	if err := hdl.engine.c.CallContext(context.Background(), &result, "eth_getTransactionByHash", hdl.hash); err != nil {
+	if err := hdl.engine.cT.CallContext(context.Background(), &result, "eth_getTransactionByHash", hdl.hash); err != nil {
 		return nil, err
 	}
 
@@ -56,18 +55,6 @@ func (hdl txHashHandler) fetchTxInfo() (*Transaction, error) {
 	}
 
 	return result, nil
-}
-
-func isETHTransaction(tran *Transaction) bool {
-	return tran.Input == "0x"
-}
-
-func isERCTransaction(tran *Transaction) bool {
-	return strings.Contains(tran.Input, MethodIDTransferERC20Token.String())
-}
-
-func allowPush(tran *Transaction) bool {
-	return isETHTransaction(tran) || isERCTransaction(tran)
 }
 
 func (hdl txHashHandler) pushPendingTransaction(tran *Transaction) {

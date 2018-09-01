@@ -25,6 +25,7 @@ func messagePayload(tran *Transaction, ws WalletSubscriber) map[string]interface
 
 func messageTitle(tran *Transaction, ws WalletSubscriber) string {
 	bigInt, _ := new(big.Int).SetString(tran.Value, 10)
+
 	value := ""
 	symbol := "ETH"
 

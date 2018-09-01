@@ -108,7 +108,10 @@ func updateTransactionFromReceipt(ds EngineTokenDataSource, trans []Transaction)
 		} else {
 			trans[i].Status = Failure
 		}
-		fillTokenInfo(ds, &trans[i])
+
+		if isERCTransaction(&trans[i]) {
+			fillTokenInfo(ds, &trans[i])
+		}
 	}
 	return trans
 }
@@ -118,6 +121,9 @@ func fillTokenInfo(ds EngineTokenDataSource, tran *Transaction) {
 	if len(tokens) > 0 {
 		token := tokens[0]
 		inputData := ParseInputTx(tran.Input, token.Decimals)
+		if inputData == nil {
+			return
+		}
 		tran.To = inputData.ToAddress
 		tran.Value = inputData.Value
 		tran.Receipt.ContractAddress = token.ContractAddress
@@ -139,4 +145,16 @@ func generateTxReceiptBatchElements(b *Block) []rpc.BatchElem {
 		result = append(result, be)
 	}
 	return result
+}
+
+func isETHTransaction(tran *Transaction) bool {
+	return tran.Input == "0x"
+}
+
+func isERCTransaction(tran *Transaction) bool {
+	return strings.Contains(tran.Input, MethodIDTransferERC20Token.String())
+}
+
+func allowPush(tran *Transaction) bool {
+	return isETHTransaction(tran) || isERCTransaction(tran)
 }

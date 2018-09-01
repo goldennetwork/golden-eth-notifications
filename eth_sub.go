@@ -27,10 +27,11 @@ func newETHSub(engine *Engine) ethSub {
 }
 
 func (es *ethSub) StartEtherSub() {
-	client := es.engine.c
+	clientT := es.engine.cT
+	clientB := es.engine.cB
 
-	subTx, errSubTx := client.EthSubscribe(context.Background(), es.pendingTxSubChan, "newPendingTransactions")
-	subBlock, errSubBlock := client.EthSubscribe(context.Background(), es.newBlockSubChan, "newHeads")
+	subTx, errSubTx := clientT.EthSubscribe(context.Background(), es.pendingTxSubChan, "newPendingTransactions")
+	subBlock, errSubBlock := clientB.EthSubscribe(context.Background(), es.newBlockSubChan, "newHeads")
 
 	unsubsribe := func() {
 		if subBlock != nil {
