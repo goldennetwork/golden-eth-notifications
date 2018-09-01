@@ -4,8 +4,6 @@ import (
 	"context"
 	"log"
 	"time"
-
-	"github.com/ethereum/go-ethereum/rpc"
 )
 
 type blockHashHandler struct {
@@ -62,54 +60,11 @@ func (hdl blockHashHandler) hanlePushWithoutCache(b *Block) {
 	if err != nil {
 		log.Println("Error fetch tx from block: ", err)
 		return
-	} else {
-		log.Println(b)
 	}
-}
+	b.Transactions = updateTransactionFromReceipt(hdl.engine.tokenDataSource, b.Transactions)
+	walletSubscribersRes := hdl.engine.dataSource.FindWalletSubscribers(b.Transactions)
 
-func (hdl blockHashHandler) fetchTxReceipt(txHash string) (*Transaction, error) {
-	txInfoReceipt := Transaction{}
-	err := hdl.engine.c.CallContext(context.Background(), &txInfoReceipt, "eth_getTransactionReceipt", txHash)
-	if err != nil {
-		return nil, err
+	for _, wsr := range walletSubscribersRes {
+		hdl.engine.pushMessage(wsr.Transaction, wsr.Subscribers)
 	}
-
-	if txInfoReceipt.StatusReceipt == "0x1" {
-		txInfoReceipt.Status = Success
-	}
-	if txInfoReceipt.StatusReceipt == "0x0" {
-		txInfoReceipt.Status = Failure
-	}
-	txInfoReceipt.ChainName = hdl.engine.ChainName
-
-	return &txInfoReceipt, nil
-}
-
-func (hdl blockHashHandler) pushTrackingTransaction(txs []string) {
-	// for _, txHash := range txs {
-	// 	cd, errCd := hdl.engine.cacheData.Get(txHash)
-	// 	txInfoReceipt, errTx := hdl.fetchTxReceipt(txHash)
-	// 	if errCd != nil || errTx != nil {
-	// 		continue
-	// 	}
-	// 	txInfoReceipt.Value = cd.Transaction.Value
-
-	// 	go hdl.engine.pushMessage(txInfoReceipt, cd.WalletSubscribers)
-	// 	hdl.engine.cacheData.Remove(txHash)
-	// }
-}
-
-func generateTxReceiptBatchElements(b *Block) []rpc.BatchElem {
-	result := []rpc.BatchElem{}
-
-	for i, tran := range b.Transactions {
-		var arg interface{} = tran.Hash
-		be := rpc.BatchElem{
-			Method: "eth_getTransactionReceipt",
-			Args:   []interface{}{arg},
-			Result: &b.Transactions[i],
-		}
-		result = append(result, be)
-	}
-	return result
 }

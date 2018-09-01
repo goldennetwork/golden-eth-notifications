@@ -45,7 +45,7 @@ func (hdl txHashHandler) fetchTxInfo() (*Transaction, error) {
 	result.ChainName = hdl.engine.ChainName
 
 	if isERCTransaction(result) {
-		hdl.fillTokenInfo(result)
+		fillTokenInfo(hdl.engine.tokenDataSource, result)
 	}
 
 	if result.Value != "0x0" {
@@ -56,19 +56,6 @@ func (hdl txHashHandler) fetchTxInfo() (*Transaction, error) {
 	}
 
 	return result, nil
-}
-
-func (hdl txHashHandler) fillTokenInfo(tran *Transaction) {
-	tokens := hdl.engine.tokenDataSource.FindTokens([]string{tran.To})
-	if len(tokens) > 0 {
-		token := tokens[0]
-		inputData := ParseInputTx(tran.Input, token.Decimals)
-		tran.To = inputData.ToAddress
-		tran.Value = inputData.Value
-		tran.ContractAddress = token.ContractAddress
-		tran.TokenDecimal = int(token.Decimals)
-		tran.TokenSymbol = token.Symbol
-	}
 }
 
 func isETHTransaction(tran *Transaction) bool {

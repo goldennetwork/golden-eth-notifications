@@ -101,6 +101,8 @@ func (e *Engine) SetAllowSendMessage(hdl func(*Transaction, WalletSubscriber, Pu
 }
 
 func (e *Engine) pushMessage(tran *Transaction, walletSubs []WalletSubscriber) {
+	tran.ChainName = e.ChainName
+
 	for _, ws := range walletSubs {
 		message := PushMessage{
 			Title:        e.pushTitle,

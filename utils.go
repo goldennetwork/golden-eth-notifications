@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/ethereum/go-ethereum/common/hexutil"
+	"github.com/ethereum/go-ethereum/rpc"
 )
 
 func ParseInputTx(input string, decimals int8) *InputData {
@@ -90,5 +91,52 @@ func getTransactionHashesFromBlock(b *Block) []string {
 		result = append(result, tran.Hash)
 	}
 
+	return result
+}
+
+func updateTransactionFromReceipt(ds EngineTokenDataSource, trans []Transaction) []Transaction {
+	for i, tran := range trans {
+		if tran.Value != "0x0" {
+			bigInt, _ := ConvertHexStringToBigInt(tran.Value)
+			trans[i].Value = bigInt.String()
+		} else {
+			trans[i].Value = "0"
+		}
+
+		if tran.Receipt.Status == "0x1" {
+			trans[i].Status = Success
+		} else {
+			trans[i].Status = Failure
+		}
+		fillTokenInfo(ds, &trans[i])
+	}
+	return trans
+}
+
+func fillTokenInfo(ds EngineTokenDataSource, tran *Transaction) {
+	tokens := ds.FindTokens([]string{tran.To})
+	if len(tokens) > 0 {
+		token := tokens[0]
+		inputData := ParseInputTx(tran.Input, token.Decimals)
+		tran.To = inputData.ToAddress
+		tran.Value = inputData.Value
+		tran.Receipt.ContractAddress = token.ContractAddress
+		tran.TokenDecimal = int(token.Decimals)
+		tran.TokenSymbol = token.Symbol
+	}
+}
+
+func generateTxReceiptBatchElements(b *Block) []rpc.BatchElem {
+	result := []rpc.BatchElem{}
+
+	for i, tran := range b.Transactions {
+		var arg interface{} = tran.Hash
+		be := rpc.BatchElem{
+			Method: "eth_getTransactionReceipt",
+			Args:   []interface{}{arg},
+			Result: &b.Transactions[i].Receipt,
+		}
+		result = append(result, be)
+	}
 	return result
 }

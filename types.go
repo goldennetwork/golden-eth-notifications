@@ -46,33 +46,40 @@ type Block struct {
 }
 
 type Transaction struct {
-	BlockHash         string   `json:"blockHash" bson:"block_hash"`
-	BlockNumber       string   `json:"blockNumber" bson:"block_number"`
-	From              string   `json:"from" bson:"from"`
-	To                string   `json:"to" bson:"to"`
-	Value             string   `json:"value" bson:"value"`
-	Gas               string   `json:"gas" bson:"gas"`
-	GasPrice          string   `json:"gasPrice" bson:"gas_price"`
-	CumulativeGasUsed string   `json:"cumulativeGasUsed" bson:"cumulativeGasUsed"`
-	Hash              string   `json:"hash" bson:"hash"`
-	Input             string   `json:"input" bson:"input"`
-	Logs              []Log    `json:"logs" bson:"logs"`
-	LogsBloom         string   `json:"logsBloom" bson:"logsBloom"`
-	TransactionIndex  string   `json:"transactionIndex" bson:"tx_index"`
-	TimeStamp         string   `json:"timeStamp" bson:"time_stamp"`
-	ContractAddress   string   `json:"contractAddress" bson:"contract_address"`
-	TokenName         string   `json:"tokenName" bson:"token_name"`
-	TokenSymbol       string   `json:"tokenSymbol" bson:"token_symbol"`
-	TokenDecimal      int      `json:"tokenDecimal" bson:"token_decimal"`
-	Status            TxStatus `json:"-" bson:"status"`
-	StatusReceipt     string   `json:"status"`
-	IsSeft            bool     `json:"isSeft"`
-	ChainName         string   `json:"chainName"`
+	BlockHash        string   `json:"blockHash" bson:"block_hash"`
+	BlockNumber      string   `json:"blockNumber" bson:"block_number"`
+	From             string   `json:"from" bson:"from"`
+	To               string   `json:"to" bson:"to"`
+	Value            string   `json:"value" bson:"value"`
+	Gas              string   `json:"gas" bson:"gas"`
+	GasPrice         string   `json:"gasPrice" bson:"gas_price"`
+	Hash             string   `json:"hash" bson:"hash"`
+	Input            string   `json:"input" bson:"input"`
+	TransactionIndex string   `json:"transactionIndex" bson:"tx_index"`
+	TimeStamp        string   `json:"timeStamp" bson:"time_stamp"`
+	TokenName        string   `json:"tokenName" bson:"token_name"`
+	TokenSymbol      string   `json:"tokenSymbol" bson:"token_symbol"`
+	TokenDecimal     int      `json:"tokenDecimal" bson:"token_decimal"`
+	Status           TxStatus `json:"-" bson:"status"`
+	IsSeft           bool     `json:"isSeft"`
+	ChainName        string   `json:"chainName"`
+	Receipt          TransactionReceipt
 	// Nonce            string `json:"nonce" bson:"nonce"`
 	// GasUsed          string `json:"gasUsed" bson:"gas_used"`
 	// V                string `json:"v" bson:"v"`
 	// R                string `json:"r" bson:"r"`
 	// S                string `json:"s" bson:"s"`
+}
+
+type TransactionReceipt struct {
+	ContractAddress   string `json:"contractAddress" bson:"contract_address"`
+	CumulativeGasUsed string `json:"cumulativeGasUsed" bson:"cumulativeGasUsed"`
+	From              string `json:"from" bson:"from"`
+	To                string `json:"to" bson:"to"`
+	GasUsed           string `json:"gasUsed" bson:"gasUsed"`
+	Logs              []Log  `json:"logs" bson:"logs"`
+	LogsBloom         string `json:"logsBloom" bson:"logsBloom"`
+	Status            string `json:"status" bson:"status"`
 }
 
 type Log struct {

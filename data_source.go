@@ -42,6 +42,9 @@ func (ds *defaultDataSource) FindWalletSubscribers(transactions []Transaction) [
 		if foundTo {
 			wsr.Subscribers = append(wsr.Subscribers, walletSubsTo...)
 		}
+		if len(wsr.Subscribers) > 0 {
+			result = append(result, wsr)
+		}
 	}
 
 	ds.lock.Unlock()
