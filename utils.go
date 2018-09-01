@@ -22,13 +22,13 @@ func ParseInputTx(input string, decimals int8) *InputData {
 	toAddress := strings.TrimLeft(input[10:74], "0")
 	valueRaw := strings.TrimLeft(input[75:], "0")
 	valBigInt, _ := ConvertHexStringToBigInt(valueRaw)
-	valDcms := ConvertInputValueWithDecimal(valBigInt.String(), decimals)
+	// valDcms := ConvertInputValueWithDecimal(valBigInt.String(), decimals)
 
 	return &InputData{
-		MethodID:          methodID,
-		ToAddress:         toAddress,
-		Value:             valBigInt.String(),
-		ValueWithDecimals: valDcms,
+		MethodID:  methodID,
+		ToAddress: toAddress,
+		Value:     valBigInt.String(),
+		// ValueWithDecimals: valDcms,
 	}
 }
 

@@ -2,7 +2,6 @@ package ethNotification
 
 import (
 	"fmt"
-	"math/big"
 )
 
 type MessageHook struct {
@@ -24,18 +23,16 @@ func messagePayload(tran *Transaction, ws WalletSubscriber) map[string]interface
 }
 
 func messageTitle(tran *Transaction, ws WalletSubscriber) string {
-	bigInt, _ := new(big.Int).SetString(tran.Value, 10)
-
 	value := ""
 	symbol := "ETH"
 
 	// Format value base on ETH or Token
-	if tran.TokenDecimal != 0 {
-		value = CoinToNumberInString(bigInt, tran.TokenDecimal, 5)
+	if tran.TokenSymbol != "" {
+		value = ConvertInputValueWithDecimal(tran.Value, int8(tran.TokenDecimal))
 		// Change symbol if token
 		symbol = tran.TokenSymbol
 	} else {
-		value = CoinToNumberInString(bigInt, 18, 5)
+		value = ConvertInputValueWithDecimal(tran.Value, 18)
 	}
 
 	content := fmt.Sprintf("Wallet %s received %s %s. Status: %s.", ws.WalletName, value, symbol, tran.Status.String())
