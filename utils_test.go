@@ -1,12 +1,10 @@
-package utils
+package ethNotification
 
 import (
 	"math/big"
 	"reflect"
 	"testing"
 	"time"
-
-	"github.com/goldennetwork/golden-eth-notifications/types"
 )
 
 func TestParseInputTx(t *testing.T) {
@@ -17,7 +15,7 @@ func TestParseInputTx(t *testing.T) {
 	tests := []struct {
 		name string
 		args args
-		want *types.InputData
+		want *InputData
 	}{
 		{
 			"Test case 1: Transaction VECHAIN",
@@ -25,7 +23,7 @@ func TestParseInputTx(t *testing.T) {
 				input:    "0xa9059cbb00000000000000000000000019bbb1c4407dcee04059682949f32cb3b513bf7600000000000000000000000000000000000000000000043c2b2187680e25a000",
 				decimals: 18,
 			},
-			&types.InputData{
+			&InputData{
 				ToAddress:         "19bbb1c4407dcee04059682949f32cb3b513bf76",
 				Value:             "43c2b2187680e25a000",
 				ValueWithDecimals: "19999.37849",
@@ -38,7 +36,7 @@ func TestParseInputTx(t *testing.T) {
 				input:    "0xa9059cbb000000000000000000000000f8e2f119e4c9f5bd939cad8ba59dbbf68af109490000000000000000000000000000000000000000000000000000022d191fac50",
 				decimals: 8,
 			},
-			&types.InputData{
+			&InputData{
 				ToAddress:         "f8e2f119e4c9f5bd939cad8ba59dbbf68af10949",
 				Value:             "22d191fac50",
 				ValueWithDecimals: "23927.1829",
