@@ -50,7 +50,7 @@ func main() {
 
 ```golang
     engine.OnBeforeSendMessage(func(tran *ethPush.Transaction, ws ethPush.WalletSubscriber, pushMess ethPush.PushMessage) {
-	// do somthing with your transaction and message
+	// do something with your transaction and message
     })
     
     engine.SetMessageTitle(func(tran *ethPush.Transaction, ws ethPush.WalletSubscriber) string {
@@ -72,7 +72,7 @@ func main() {
     })
     
     engine.OnAfterSendMessage(func(tran *ethPush.Transaction, ws ethPush.WalletSubscriber, pushMess ethPush.PushMessage) {
-    	// do somthing with your transaction and message
+    	// do something with your transaction and message
     })
 ```
 
