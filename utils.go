@@ -126,7 +126,7 @@ func fillTokenInfo(ds EngineTokenDataSource, tran *Transaction) {
 		}
 		tran.To = inputData.ToAddress
 		tran.Value = inputData.Value
-		tran.Receipt.ContractAddress = token.ContractAddress
+		tran.ContractAddress = token.ContractAddress
 		tran.TokenDecimal = int(token.Decimals)
 		tran.TokenSymbol = token.Symbol
 	}

@@ -57,6 +57,7 @@ type Transaction struct {
 	Input            string   `json:"input" bson:"input"`
 	TransactionIndex string   `json:"transactionIndex" bson:"tx_index"`
 	TimeStamp        string   `json:"timeStamp" bson:"time_stamp"`
+	ContractAddress  string   `json:"contractAddress" bson:"contract_address"`
 	TokenName        string   `json:"tokenName" bson:"token_name"`
 	TokenSymbol      string   `json:"tokenSymbol" bson:"token_symbol"`
 	TokenDecimal     int      `json:"tokenDecimal" bson:"token_decimal"`
